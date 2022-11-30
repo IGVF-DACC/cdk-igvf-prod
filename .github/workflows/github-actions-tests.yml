@@ -1,0 +1,64 @@
+name: cdk-igvf-dev
+
+on: [push]
+
+jobs:
+  lint:
+
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.9
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install pre-commit
+        pre-commit install
+    - name: Lint
+      run: |
+        pre-commit run --all-files
+
+  test-notify:
+    needs: lint
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.9
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements.txt -r requirements-dev.txt
+      working-directory: ./notification
+    - name: Run snapshot test
+      run: pytest
+      working-directory: ./notification
+
+  test-network:
+    needs: lint
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.9
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements.txt -r requirements-dev.txt
+      working-directory: ./network
+    - name: Run snapshot test
+      run: pytest
+      working-directory: ./network
