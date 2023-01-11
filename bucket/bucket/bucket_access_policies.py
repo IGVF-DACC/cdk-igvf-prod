@@ -14,7 +14,6 @@ from bucket.bucket_storage import BucketStorage
 from typing import Any
 
 
-
 class BucketAccessPolicies(Stack):
 
     def __init__(
