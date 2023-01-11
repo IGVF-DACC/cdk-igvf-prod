@@ -44,7 +44,12 @@ CORS = CorsRule(
 )
 
 
-def generate_bucket_resource_policy(*, sid: str, principals: List[AccountPrincipal], resources: List[str]) -> PolicyStatement:
+def generate_read_access_policy_for_bucket(
+        *,
+        sid: str,
+        principals: List[AccountPrincipal],
+        resources: List[str]
+) -> PolicyStatement:
     return PolicyStatement(
         sid=sid,
         principals=principals,
@@ -83,7 +88,7 @@ class BucketStorage(Stack):
             versioned=True,
         )
 
-        self.blobs_bucket_policy = generate_bucket_resource_policy(
+        self.blobs_bucket_read_access_policy = generate_read_access_policy_for_bucket(
             sid='AllowReadFromIgvfDevAndStagingAccounts',
             principals=[
                 AccountPrincipal('109189702753'),  # igvf-dev
@@ -96,7 +101,7 @@ class BucketStorage(Stack):
         )
 
         self.blobs_bucket.add_to_resource_policy(
-            self.blobs_bucket_policy
+            self.blobs_bucket_read_access_policy
         )
 
         self.files_logs_bucket = Bucket(
@@ -118,7 +123,7 @@ class BucketStorage(Stack):
             versioned=True,
         )
 
-        self.files_bucket_policy = generate_bucket_resource_policy(
+        self.files_bucket_read_access_policy = generate_read_access_policy_for_bucket(
             sid='AllowReadFromIgvfDevAndStagingAccounts',
             principals=[
                 AccountPrincipal('109189702753'),  # igvf-dev
@@ -131,5 +136,5 @@ class BucketStorage(Stack):
         )
 
         self.files_bucket.add_to_resource_policy(
-            self.files_bucket_policy
+            self.files_bucket_read_access_policy
         )
