@@ -83,8 +83,8 @@ class BucketStorage(Stack):
         self.blobs_bucket_policy = generate_bucket_resource_policy(
             sid='AllowReadFromIgvfDevAndStagingAccounts',
             principals=[
-                AccountPrincipal('109189702753'), # igvf-dev
-                AccountPrincipal('920073238245'), # igvf-staging
+                AccountPrincipal('109189702753'),  # igvf-dev
+                AccountPrincipal('920073238245'),  # igvf-staging
             ],
             resources=[
                 self.blobs_bucket.bucket_arn,
@@ -118,8 +118,8 @@ class BucketStorage(Stack):
         self.files_bucket_policy = generate_bucket_resource_policy(
             sid='AllowReadFromIgvfDevAndStagingAccounts',
             principals=[
-                AccountPrincipal('109189702753'), # igvf-dev
-                AccountPrincipal('920073238245'), # igvf-staging
+                AccountPrincipal('109189702753'),  # igvf-dev
+                AccountPrincipal('920073238245'),  # igvf-staging
             ],
             resources=[
                 self.files_bucket.bucket_arn,
