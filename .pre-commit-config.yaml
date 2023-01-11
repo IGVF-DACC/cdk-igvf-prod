@@ -13,5 +13,5 @@ repos:
         exclude: ^(notification|network)/tests/snapshots
       - id: pretty-format-json
         args: ['--autofix', '--no-sort-keys', '--indent=4', '--no-ensure-ascii']
-        exclude: ^(notification|network)/tests/snapshots
+        exclude: ^(notification|network|bucket)/tests/snapshots
       - id: check-yaml
