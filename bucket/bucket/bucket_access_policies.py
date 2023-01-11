@@ -1,11 +1,8 @@
 from aws_cdk import App
 from aws_cdk import Stack
 
-from aws_cdk.aws_iam import AccountPrincipal
-from aws_cdk.aws_iam import AccountRootPrincipal
 from aws_cdk.aws_iam import ManagedPolicy
 from aws_cdk.aws_iam import PolicyStatement
-from aws_cdk.aws_iam import Role
 
 from constructs import Construct
 
