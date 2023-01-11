@@ -14,7 +14,7 @@ ENVIRONMENT = Environment(
 
 
 def test_match_with_snapshot(snapshot):
-    from bucket.bucket_stack import BucketStorage
+    from bucket.bucket_storage import BucketStorage
     app = App()
     stack = BucketStorage(
         app,

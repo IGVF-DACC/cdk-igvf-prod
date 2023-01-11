@@ -3,7 +3,7 @@ from aws_cdk import Environment
 
 from bucket.config import config
 
-from bucket.bucket_stack import BucketStorage
+from bucket.bucket_storage import BucketStorage
 
 
 ENVIRONMENT = Environment(
