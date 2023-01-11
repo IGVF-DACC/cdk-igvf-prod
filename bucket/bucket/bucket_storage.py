@@ -12,6 +12,9 @@ from aws_cdk.aws_s3 import HttpMethods
 
 from constructs import Construct
 
+from typing import Any
+from typing import List
+
 
 BLOBS_BUCKET_NAME = 'igvf-blobs'
 FILES_BUCKET_NAME = 'igvf-files'
@@ -41,7 +44,7 @@ CORS = CorsRule(
 )
 
 
-def generate_bucket_resource_policy(*, sid, principals, resources):
+def generate_bucket_resource_policy(*, sid: str, principals: List[AccountPrincipal], resources: List[str]) -> PolicyStatement:
     return PolicyStatement(
         sid=sid,
         principals=principals,
@@ -58,7 +61,7 @@ def generate_bucket_resource_policy(*, sid, principals, resources):
 
 class BucketStorage(Stack):
 
-    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, **kwargs: Any) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         self.blobs_logs_bucket = Bucket(
