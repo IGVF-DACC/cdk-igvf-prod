@@ -1,0 +1,288 @@
+{
+    "Parameters": {
+        "BootstrapVersion": {
+            "Default": "/cdk-bootstrap/hnb659fds/version",
+            "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+            "Type": "AWS::SSM::Parameter::Value<String>"
+        }
+    },
+    "Resources": {
+        "BlobsBucket4E25380C": {
+            "DeletionPolicy": "Retain",
+            "Properties": {
+                "BucketName": "igvf-blobs",
+                "CorsConfiguration": {
+                    "CorsRules": [
+                        {
+                            "AllowedHeaders": [
+                                "Accept",
+                                "Origin",
+                                "Range",
+                                "X-Requested-With",
+                                "Cache-Control"
+                            ],
+                            "AllowedMethods": [
+                                "GET",
+                                "HEAD"
+                            ],
+                            "AllowedOrigins": [
+                                "*"
+                            ],
+                            "ExposedHeaders": [
+                                "Content-Length",
+                                "Content-Range",
+                                "Content-Type"
+                            ],
+                            "MaxAge": 3000
+                        }
+                    ]
+                },
+                "LoggingConfiguration": {
+                    "DestinationBucketName": {
+                        "Ref": "BlobsLogsBucketB52427AB"
+                    }
+                },
+                "VersioningConfiguration": {
+                    "Status": "Enabled"
+                }
+            },
+            "Type": "AWS::S3::Bucket",
+            "UpdateReplacePolicy": "Retain"
+        },
+        "BlobsBucketPolicy51260B34": {
+            "Properties": {
+                "Bucket": {
+                    "Ref": "BlobsBucket4E25380C"
+                },
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": [
+                                "s3:GetObjectVersion",
+                                "s3:GetObject",
+                                "s3:GetBucketAcl",
+                                "s3:ListBucket",
+                                "s3:GetBucketLocation"
+                            ],
+                            "Effect": "Allow",
+                            "Principal": {
+                                "AWS": [
+                                    {
+                                        "Fn::Join": [
+                                            "",
+                                            [
+                                                "arn:",
+                                                {
+                                                    "Ref": "AWS::Partition"
+                                                },
+                                                ":iam::109189702753:root"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "Fn::Join": [
+                                            "",
+                                            [
+                                                "arn:",
+                                                {
+                                                    "Ref": "AWS::Partition"
+                                                },
+                                                ":iam::920073238245:root"
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            },
+                            "Resource": [
+                                {
+                                    "Fn::GetAtt": [
+                                        "BlobsBucket4E25380C",
+                                        "Arn"
+                                    ]
+                                },
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            {
+                                                "Fn::GetAtt": [
+                                                    "BlobsBucket4E25380C",
+                                                    "Arn"
+                                                ]
+                                            },
+                                            "/*"
+                                        ]
+                                    ]
+                                }
+                            ],
+                            "Sid": "AllowReadFromIgvfDevAndStagingAccounts"
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                }
+            },
+            "Type": "AWS::S3::BucketPolicy"
+        },
+        "BlobsLogsBucketB52427AB": {
+            "DeletionPolicy": "Retain",
+            "Properties": {
+                "AccessControl": "LogDeliveryWrite",
+                "BucketName": "igvf-blobs-logs"
+            },
+            "Type": "AWS::S3::Bucket",
+            "UpdateReplacePolicy": "Retain"
+        },
+        "FilesBucket16450113": {
+            "DeletionPolicy": "Retain",
+            "Properties": {
+                "BucketName": "igvf-files",
+                "CorsConfiguration": {
+                    "CorsRules": [
+                        {
+                            "AllowedHeaders": [
+                                "Accept",
+                                "Origin",
+                                "Range",
+                                "X-Requested-With",
+                                "Cache-Control"
+                            ],
+                            "AllowedMethods": [
+                                "GET",
+                                "HEAD"
+                            ],
+                            "AllowedOrigins": [
+                                "*"
+                            ],
+                            "ExposedHeaders": [
+                                "Content-Length",
+                                "Content-Range",
+                                "Content-Type"
+                            ],
+                            "MaxAge": 3000
+                        }
+                    ]
+                },
+                "LoggingConfiguration": {
+                    "DestinationBucketName": {
+                        "Ref": "FilesLogsBucket47918849"
+                    }
+                },
+                "VersioningConfiguration": {
+                    "Status": "Enabled"
+                }
+            },
+            "Type": "AWS::S3::Bucket",
+            "UpdateReplacePolicy": "Retain"
+        },
+        "FilesBucketPolicy8CA19688": {
+            "Properties": {
+                "Bucket": {
+                    "Ref": "FilesBucket16450113"
+                },
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": [
+                                "s3:GetObjectVersion",
+                                "s3:GetObject",
+                                "s3:GetBucketAcl",
+                                "s3:ListBucket",
+                                "s3:GetBucketLocation"
+                            ],
+                            "Effect": "Allow",
+                            "Principal": {
+                                "AWS": [
+                                    {
+                                        "Fn::Join": [
+                                            "",
+                                            [
+                                                "arn:",
+                                                {
+                                                    "Ref": "AWS::Partition"
+                                                },
+                                                ":iam::109189702753:root"
+                                            ]
+                                        ]
+                                    },
+                                    {
+                                        "Fn::Join": [
+                                            "",
+                                            [
+                                                "arn:",
+                                                {
+                                                    "Ref": "AWS::Partition"
+                                                },
+                                                ":iam::920073238245:root"
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            },
+                            "Resource": [
+                                {
+                                    "Fn::GetAtt": [
+                                        "FilesBucket16450113",
+                                        "Arn"
+                                    ]
+                                },
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            {
+                                                "Fn::GetAtt": [
+                                                    "FilesBucket16450113",
+                                                    "Arn"
+                                                ]
+                                            },
+                                            "/*"
+                                        ]
+                                    ]
+                                }
+                            ],
+                            "Sid": "AllowReadFromIgvfDevAndStagingAccounts"
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                }
+            },
+            "Type": "AWS::S3::BucketPolicy"
+        },
+        "FilesLogsBucket47918849": {
+            "DeletionPolicy": "Retain",
+            "Properties": {
+                "AccessControl": "LogDeliveryWrite",
+                "BucketName": "igvf-files-logs"
+            },
+            "Type": "AWS::S3::Bucket",
+            "UpdateReplacePolicy": "Retain"
+        }
+    },
+    "Rules": {
+        "CheckBootstrapVersion": {
+            "Assertions": [
+                {
+                    "Assert": {
+                        "Fn::Not": [
+                            {
+                                "Fn::Contains": [
+                                    [
+                                        "1",
+                                        "2",
+                                        "3",
+                                        "4",
+                                        "5"
+                                    ],
+                                    {
+                                        "Ref": "BootstrapVersion"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+                }
+            ]
+        }
+    }
+}
