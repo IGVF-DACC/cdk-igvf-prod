@@ -124,6 +124,52 @@
                 }
             },
             "Type": "AWS::IAM::ManagedPolicy"
+        },
+        "UploadIgvfFilesUser104584C3": {
+            "Properties": {
+                "ManagedPolicyArns": [
+                    {
+                        "Ref": "UploadIgvfFilesPolicyE468DEF2"
+                    }
+                ],
+                "UserName": "upload-igvf-files"
+            },
+            "Type": "AWS::IAM::User"
+        },
+        "UploadIgvfFilesUserAccessKey6B06335E": {
+            "Properties": {
+                "UserName": {
+                    "Ref": "UploadIgvfFilesUser104584C3"
+                }
+            },
+            "Type": "AWS::IAM::AccessKey"
+        },
+        "UploadIgvfFilesUserAccessKeySecret49A5A8C8": {
+            "DeletionPolicy": "Delete",
+            "Properties": {
+                "Name": "upload-igvf-files-user-access-key-secret",
+                "SecretString": {
+                    "Fn::Join": [
+                        "",
+                        [
+                            "{\"ACCESS_KEY\":\"",
+                            {
+                                "Ref": "UploadIgvfFilesUserAccessKey6B06335E"
+                            },
+                            "\",\"SECRET_ACCESS_KEY\":\"",
+                            {
+                                "Fn::GetAtt": [
+                                    "UploadIgvfFilesUserAccessKey6B06335E",
+                                    "SecretAccessKey"
+                                ]
+                            },
+                            "\"}"
+                        ]
+                    ]
+                }
+            },
+            "Type": "AWS::SecretsManager::Secret",
+            "UpdateReplacePolicy": "Delete"
         }
     },
     "Rules": {

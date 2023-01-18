@@ -1,8 +1,13 @@
 from aws_cdk import App
 from aws_cdk import Stack
+from aws_cdk import SecretValue
 
+from aws_cdk.aws_iam import AccessKey
+from aws_cdk.aws_iam import User
 from aws_cdk.aws_iam import ManagedPolicy
 from aws_cdk.aws_iam import PolicyStatement
+
+from aws_cdk.aws_secretsmanager import Secret
 
 from constructs import Construct
 
@@ -87,4 +92,31 @@ class BucketAccessPolicies(Stack):
                 self.upload_igvf_files_policy_statement,
                 self.federated_token_policy_statement,
             ],
+        )
+
+        self.upload_igvf_files_user = User(
+            self,
+            'UploadIgvfFilesUser',
+            user_name='upload-igvf-files',
+            managed_policies=[
+                self.upload_igvf_files_policy,
+            ]
+        )
+
+        self.upload_igvf_files_user_access_key = AccessKey(
+            self,
+            'UploadIgvfFilesUserAccessKey',
+            user=self.upload_igvf_files_user,
+        )
+
+        self.upload_igvf_files_user_access_key_secret = Secret(
+            self,
+            'UploadIgvfFilesUserAccessKeySecret',
+            secret_name='upload-igvf-files-user-access-key-secret',
+            secret_object_value={
+                'ACCESS_KEY': SecretValue.unsafe_plain_text(
+                    self.upload_igvf_files_user_access_key.access_key_id,
+                ),
+                'SECRET_ACCESS_KEY': self.upload_igvf_files_user_access_key.secret_access_key,
+            },
         )
