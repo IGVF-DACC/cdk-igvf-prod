@@ -90,6 +90,19 @@ class CopySnapshotStepFunction(Stack):
             },
         )
 
+        send_slack_notification = EventBridgePutEvents(
+            self,
+            'SendSlackNotification',
+            entries=[
+                EventBridgePutEventsEntry(
+                    detail_type=JsonPath.string_at('$.detailType'),
+                    detail=TaskInput.from_json_path_at('$.detail'),
+                    source=JsonPath.string_at('$.source')
+                )
+            ],
+            result_path=JsonPath.DISCARD,
+        )
+
         succeed = Succeed(self, 'Succeed')
 
         copy_latest_snapshot_lambda = PythonFunction(
