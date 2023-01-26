@@ -18,6 +18,7 @@ from aws_cdk.aws_stepfunctions import JsonPath
 from aws_cdk.aws_stepfunctions import Pass
 from aws_cdk.aws_stepfunctions import Succeed
 from aws_cdk.aws_stepfunctions import StateMachine
+from aws_cdk.aws_stepfunctions import TaskInput
 from aws_cdk.aws_stepfunctions import Wait
 from aws_cdk.aws_stepfunctions import WaitTime
 from aws_cdk.aws_stepfunctions import Fail
