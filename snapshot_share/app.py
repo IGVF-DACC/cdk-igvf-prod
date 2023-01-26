@@ -32,11 +32,10 @@ from typing import Any
 IGVF_DEV_ENV = Environment(account='109189702753', region='us-west-2')
 DATABASE_IDENTIFIER = 'ipbe3yif4qeg11'
 #gotta serialize as string to pass to lambda as env
-SHARE_TO_ACCOUNTS = json.dumps(
-    {
-        'accounts': ['618537831167']
-    }
-)
+ACCOUNTS = ['618537831167']
+SHARE_TO_ACCOUNTS = json.dumps({'accounts': ACCOUNTS})
+
+
 class CopySnapshotStepFunction(Stack):
 
     def __init__(
@@ -47,11 +46,11 @@ class CopySnapshotStepFunction(Stack):
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        make_success_message = Pass(
+        make_snapshot_copy_failure_message = Pass(
             self,
-            'MakeSuccessMessage',
+            'MakeSnapshotCopyFailureMessage',
             parameters={
-                'detailType': 'SnapShotCompleted',
+                'detailType': 'SnapShotCopyFailed',
                 'source': 'cdk-igvf-dev.snapshot-share.SnapshotStateMachine',
                 'detail': {
                     'metadata': {
@@ -60,7 +59,29 @@ class CopySnapshotStepFunction(Stack):
                     'data': {
                         'slack': {
                             'text': JsonPath.format(
-                                ':white_check_mark: *SnapshotSucceeded* | {}',
+                                ':x: *SnapshotCopyFailed* | Database ID: {}',
+                                DATABASE_IDENTIFIER
+                            )
+                        }
+                    }
+                }
+            },
+        )
+
+        make_snapshot_share_success_message = Pass(
+            self,
+            'MakeSnapshotShareSuccessMessage',
+            parameters={
+                'detailType': 'SnapShotShareCompleted',
+                'source': 'cdk-igvf-dev.snapshot-share.SnapshotStateMachine',
+                'detail': {
+                    'metadata': {
+                        'includes_slack_notification': True
+                    },
+                    'data': {
+                        'slack': {
+                            'text': JsonPath.format(
+                                ':white_check_mark: *SnapshotShareSucceeded* | Snapshot ID: {}',
                                 JsonPath.string_at('$.shared_snapshot_id')
                             )
                         }
@@ -69,11 +90,11 @@ class CopySnapshotStepFunction(Stack):
             },
         )
 
-        make_failure_message = Pass(
+        make_snapshot_share_failure_message = Pass(
             self,
-            'MakeFailureMessage',
+            'MakeSnapshotShareFailureMessage',
             parameters={
-                'detailType': 'SnapShotFailed',
+                'detailType': 'SnapShotShareFailed',
                 'source': 'cdk-igvf-dev.snapshot-share.SnapshotStateMachine',
                 'detail': {
                     'metadata': {
@@ -82,7 +103,7 @@ class CopySnapshotStepFunction(Stack):
                     'data': {
                         'slack': {
                             'text': JsonPath.format(
-                                ':x: *SnapshotFailed* | {}',
+                                ':x: *SnapshotShareFailed* | Database ID: {}',
                                 DATABASE_IDENTIFIER
                             )
                         }
@@ -103,8 +124,6 @@ class CopySnapshotStepFunction(Stack):
             ],
             result_path=JsonPath.DISCARD,
         )
-
-        succeed = Succeed(self, 'Succeed')
 
         copy_latest_snapshot_lambda = PythonFunction(
             self,
@@ -138,6 +157,12 @@ class CopySnapshotStepFunction(Stack):
             }
         )
 
+        copy_failed_procedure = make_snapshot_copy_failure_message.next(
+            send_slack_notification
+        )
+
+        make_copy_of_latest_snapshot.add_catch(copy_failed_procedure)
+
         share_snapshot_lambda = PythonFunction(
             self,
             'ShareSnapshotCopyLambda',
@@ -158,12 +183,7 @@ class CopySnapshotStepFunction(Stack):
             )
         )
 
-        share_failed = Fail(self,
-            'ShareFailed',
-            cause='Snapshot retry limit reached',
-        )
-
-        share_failed_procedure = make_failure_message.next(
+        share_failed_procedure = make_snapshot_share_failure_message.next(
             send_slack_notification
         )
 
@@ -199,7 +219,7 @@ class CopySnapshotStepFunction(Stack):
         ).next(
             share_snapshot
         ).next(
-            make_success_message
+            make_snapshot_share_success_message
         ).next(
             send_slack_notification
         )
