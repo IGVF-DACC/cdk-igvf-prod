@@ -82,7 +82,7 @@ class CopySnapshotStepFunction(Stack):
                         'slack': {
                             'text': JsonPath.format(
                                 ':x: *SnapshotFailed* | {}',
-                                JsonPath.string_at('$.stack_to_delete')
+                                DATABASE_IDENTIFIER
                             )
                         }
                     }
@@ -162,6 +162,12 @@ class CopySnapshotStepFunction(Stack):
             cause='Snapshot retry limit reached',
         )
 
+        share_failed_procedure = make_failure_message.next(
+            send_slack_notification
+        ).next(
+            share_failed
+        )
+
         share_snapshot = LambdaInvoke(
             self,
             'ShareLatestSnapshot',
@@ -179,9 +185,7 @@ class CopySnapshotStepFunction(Stack):
             max_attempts=4,
         )
 
-        share_snapshot.add_catch(share_failed)
-
-
+        share_snapshot.add_catch(share_failed_procedure)
 
         wait_ten_minutes = Wait(
             self,
@@ -195,6 +199,10 @@ class CopySnapshotStepFunction(Stack):
             wait_ten_minutes
         ).next(
             share_snapshot
+        ).next(
+            make_success_message
+        ).next(
+            send_slack_notification
         ).next(
             succeed
         )
