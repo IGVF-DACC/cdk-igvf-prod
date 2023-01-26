@@ -180,7 +180,7 @@ class CopySnapshotStepFunction(Stack):
         share_snapshot.add_retry(
             backoff_rate=2,
             errors=['InvalidDBSnapshotStateFault'],
-            interval=Duration.seconds(1),
+            interval=Duration.seconds(60),
             max_attempts=4,
         )
 
