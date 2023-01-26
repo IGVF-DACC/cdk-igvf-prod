@@ -23,6 +23,8 @@ from aws_cdk.aws_stepfunctions import WaitTime
 from aws_cdk.aws_stepfunctions import Fail
 
 from aws_cdk.aws_stepfunctions_tasks import LambdaInvoke
+from aws_cdk.aws_stepfunctions_tasks import EventBridgePutEvents
+from aws_cdk.aws_stepfunctions_tasks import EventBridgePutEventsEntry
 
 from typing import Any
 
@@ -44,12 +46,56 @@ class CopySnapshotStepFunction(Stack):
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
+        make_success_message = Pass(
+            self,
+            'MakeSuccessMessage',
+            parameters={
+                'detailType': 'SnapShotCompleted',
+                'source': 'cdk-igvf-dev.snapshot-share.SnapshotStateMachine',
+                'detail': {
+                    'metadata': {
+                        'includes_slack_notification': True
+                    },
+                    'data': {
+                        'slack': {
+                            'text': JsonPath.format(
+                                ':white_check_mark: *SnapshotSucceeded* | {}',
+                                JsonPath.string_at('$.shared_snapshot_id')
+                            )
+                        }
+                    }
+                }
+            },
+        )
+
+        make_failure_message = Pass(
+            self,
+            'MakeFailureMessage',
+            parameters={
+                'detailType': 'SnapShotFailed',
+                'source': 'cdk-igvf-dev.snapshot-share.SnapshotStateMachine',
+                'detail': {
+                    'metadata': {
+                        'includes_slack_notification': True
+                    },
+                    'data': {
+                        'slack': {
+                            'text': JsonPath.format(
+                                ':x: *SnapshotFailed* | {}',
+                                JsonPath.string_at('$.stack_to_delete')
+                            )
+                        }
+                    }
+                }
+            },
+        )
+
         succeed = Succeed(self, 'Succeed')
 
         copy_latest_snapshot_lambda = PythonFunction(
             self,
             'MakeLatestSnapshotCopyLambda',
-            entry='lambdas/copy_snapshot',
+            entry='snapshot_share/lambdas/copy_snapshot',
             runtime=Runtime.PYTHON_3_9,
             index='main.py',
             handler='copy_latest_rds_snapshot',
@@ -81,7 +127,7 @@ class CopySnapshotStepFunction(Stack):
         share_snapshot_lambda = PythonFunction(
             self,
             'ShareSnapshotCopyLambda',
-            entry='lambdas/share_snapshot',
+            entry='snapshot_share/lambdas/share_snapshot',
             runtime=Runtime.PYTHON_3_9,
             index='main.py',
             handler='share_snapshot',
@@ -116,7 +162,7 @@ class CopySnapshotStepFunction(Stack):
         share_snapshot.add_retry(
             backoff_rate=2,
             errors=['InvalidDBSnapshotStateFault'],
-            interval=Duration.seconds(60),
+            interval=Duration.seconds(1),
             max_attempts=4,
         )
 
