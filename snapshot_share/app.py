@@ -165,8 +165,6 @@ class CopySnapshotStepFunction(Stack):
 
         share_failed_procedure = make_failure_message.next(
             send_slack_notification
-        ).next(
-            share_failed
         )
 
         share_snapshot = LambdaInvoke(
@@ -204,10 +202,7 @@ class CopySnapshotStepFunction(Stack):
             make_success_message
         ).next(
             send_slack_notification
-        ).next(
-            succeed
         )
-
 
         state_machine = StateMachine(
             self,
