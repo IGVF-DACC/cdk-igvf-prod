@@ -31,7 +31,7 @@ from typing import Any
 
 IGVF_DEV_ENV = Environment(account='109189702753', region='us-west-2')
 DATABASE_IDENTIFIER = 'ipbe3yif4qeg11'
-#gotta serialize as string to pass to lambda as env
+# gotta serialize as string to pass to lambda as env
 ACCOUNTS = ['618537831167']
 SHARE_TO_ACCOUNTS = json.dumps({'accounts': ACCOUNTS})
 
@@ -230,8 +230,10 @@ class CopySnapshotStepFunction(Stack):
             definition=definition
         )
 
+
 app = App()
 
-copy_snapshot_stepfunction = CopySnapshotStepFunction(app, 'CopySnapshotStepFunction', env=IGVF_DEV_ENV)
+copy_snapshot_stepfunction = CopySnapshotStepFunction(
+    app, 'CopySnapshotStepFunction', env=IGVF_DEV_ENV)
 
 app.synth()
