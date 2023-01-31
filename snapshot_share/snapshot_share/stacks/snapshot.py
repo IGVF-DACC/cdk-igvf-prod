@@ -10,6 +10,11 @@ from aws_cdk.aws_iam import Role
 
 from constructs import Construct
 
+from aws_cdk.aws_events import Rule
+from aws_cdk.aws_events import Schedule
+
+from aws_cdk.aws_events_targets import SfnStateMachine
+
 from aws_cdk.aws_stepfunctions import JsonPath
 from aws_cdk.aws_stepfunctions import Pass
 from aws_cdk.aws_stepfunctions import Succeed
@@ -222,4 +227,20 @@ class CopySnapshotStepFunction(Stack):
             self,
             'StateMachine',
             definition=definition
+        )
+
+        state_machine_target = SfnStateMachine(
+            state_machine
+        )
+
+        Rule(
+            self,
+            'CopyAndShareSnapshot',
+            schedule=Schedule.cron(
+                hour='14',
+                minute='0',
+            ),
+            targets=[
+                state_machine_target
+            ]
         )
