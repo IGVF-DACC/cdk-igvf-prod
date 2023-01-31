@@ -7,6 +7,27 @@
         }
     },
     "Resources": {
+        "CopyAndShareSnapshot78AB8679": {
+            "Properties": {
+                "ScheduleExpression": "cron(0 14 * * ? *)",
+                "State": "ENABLED",
+                "Targets": [
+                    {
+                        "Arn": {
+                            "Ref": "StateMachine2E01A3A5"
+                        },
+                        "Id": "Target0",
+                        "RoleArn": {
+                            "Fn::GetAtt": [
+                                "StateMachineEventsRoleDBCDECD1",
+                                "Arn"
+                            ]
+                        }
+                    }
+                ]
+            },
+            "Type": "AWS::Events::Rule"
+        },
         "MakeLatestSnapshotCopyLambda85C2D3E0": {
             "DependsOn": [
                 "MakeLatestSnapshotCopyLambdaServiceRoleDefaultPolicy41F3BAEE",
@@ -209,6 +230,46 @@
                 }
             },
             "Type": "AWS::StepFunctions::StateMachine"
+        },
+        "StateMachineEventsRoleDBCDECD1": {
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "sts:AssumeRole",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "events.amazonaws.com"
+                            }
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                }
+            },
+            "Type": "AWS::IAM::Role"
+        },
+        "StateMachineEventsRoleDefaultPolicyFB602CA9": {
+            "Properties": {
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "states:StartExecution",
+                            "Effect": "Allow",
+                            "Resource": {
+                                "Ref": "StateMachine2E01A3A5"
+                            }
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                },
+                "PolicyName": "StateMachineEventsRoleDefaultPolicyFB602CA9",
+                "Roles": [
+                    {
+                        "Ref": "StateMachineEventsRoleDBCDECD1"
+                    }
+                ]
+            },
+            "Type": "AWS::IAM::Policy"
         },
         "StateMachineRoleB840431D": {
             "Properties": {
