@@ -45,7 +45,7 @@ class CopySnapshotStepFunction(Stack):
             'MakeSnapshotCopyFailureMessage',
             parameters={
                 'detailType': 'SnapShotCopyFailed',
-                'source': 'cdk-igvf-dev.snapshot-share.SnapshotStateMachine',
+                'source': 'cdk-igvf-prod.snapshot-share.SnapshotStateMachine',
                 'detail': {
                     'metadata': {
                         'includes_slack_notification': True
@@ -67,7 +67,7 @@ class CopySnapshotStepFunction(Stack):
             'MakeSnapshotShareSuccessMessage',
             parameters={
                 'detailType': 'SnapShotShareCompleted',
-                'source': 'cdk-igvf-dev.snapshot-share.SnapshotStateMachine',
+                'source': 'cdk-igvf-prod.snapshot-share.SnapshotStateMachine',
                 'detail': {
                     'metadata': {
                         'includes_slack_notification': True
@@ -89,7 +89,7 @@ class CopySnapshotStepFunction(Stack):
             'MakeSnapshotShareFailureMessage',
             parameters={
                 'detailType': 'SnapShotShareFailed',
-                'source': 'cdk-igvf-dev.snapshot-share.SnapshotStateMachine',
+                'source': 'cdk-igvf-prod.snapshot-share.SnapshotStateMachine',
                 'detail': {
                     'metadata': {
                         'includes_slack_notification': True

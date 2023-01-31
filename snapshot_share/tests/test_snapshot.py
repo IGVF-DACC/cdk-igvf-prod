@@ -11,6 +11,7 @@ ENVIRONMENT = Environment(
 )
 
 DATABASE_IDENTIFIER = 'rds-xyz-123'
+
 SHARE_TO_ACCOUNTS = json.dumps({'accounts': ['123456']})
 
 

@@ -21,14 +21,16 @@ def get_rds_client():
     return boto3.client('rds')
 
 
-def share_snapshot_to_accounts(accounts: list,
-                               snapshot_id: str,
-                               ) -> None:
+def share_snapshot_to_accounts(
+    accounts: list,
+    snapshot_id: str,
+) -> None:
     client = get_rds_client()
     response = client.modify_db_snapshot_attribute(
         DBSnapshotIdentifier=snapshot_id,
         AttributeName='restore',
-        ValuesToAdd=accounts)
+        ValuesToAdd=accounts
+    )
 
 
 def strip_snapshot_id(snapshot_id: str) -> str:
