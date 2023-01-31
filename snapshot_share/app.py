@@ -4,19 +4,18 @@ from aws_cdk import App
 from aws_cdk import Environment
 
 from snapshot_share.stacks.snapshot import CopySnapshotStepFunction
-
+from snapshot_share.config import config
 
 IGVF_PROD_ENV = Environment(
-    account='035226225042',
-    region='us-west-2'
+    account=config['account'],
+    region=config['region']
 )
 
-DATABASE_IDENTIFIER = 'ipbe3yif4qeg11'
+DATABASE_IDENTIFIER = config['db_identifier']
 
-# gotta serialize as string to pass to lambda as env
-# igvf-dev, igvf-sandbox/igvf-staging
-ACCOUNTS = ['109189702753', '920073238245']
+ACCOUNTS = config['accounts']
 
+# serialize as string to pass to lambda as env
 SHARE_TO_ACCOUNTS = json.dumps({'accounts': ACCOUNTS})
 
 
@@ -27,7 +26,7 @@ CopySnapshotStepFunction(
     'CopySnapshotStepFunction',
     db_identifier=DATABASE_IDENTIFIER,
     share_to_accounts=SHARE_TO_ACCOUNTS,
-    env=IGVF_PROD_ENV,
+    env=ENVIRONMENT,
 )
 
 
