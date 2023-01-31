@@ -98,7 +98,7 @@
             "Properties": {
                 "Code": {
                     "S3Bucket": "cdk-hnb659fds-assets-testing-testing",
-                    "S3Key": "aa4dc1617e07c5e670c1271b59a4e941e3e9cea2964d29994a881dd3306b7820.zip"
+                    "S3Key": "a79ef3ca9c5253cf33343a093827d8c4418fa07ee59b639d4fcc934b2e7e2824.zip"
                 },
                 "Environment": {
                     "Variables": {
@@ -186,18 +186,18 @@
                                     "Arn"
                                 ]
                             },
-                            "\"},\"WaitTenMinutes\":{\"Type\":\"Wait\",\"Seconds\":10,\"Next\":\"ShareLatestSnapshot\"},\"ShareLatestSnapshot\":{\"Next\":\"MakeSnapshotShareSuccessMessage\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2},{\"ErrorEquals\":[\"InvalidDBSnapshotStateFault\"],\"IntervalSeconds\":60,\"MaxAttempts\":4,\"BackoffRate\":2}],\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"Next\":\"MakeSnapshotShareFailureMessage\"}],\"Type\":\"Task\",\"ResultSelector\":{\"shared_snapshot_id.$\":\"$\"},\"Resource\":\"",
+                            "\"},\"WaitTenMinutes\":{\"Type\":\"Wait\",\"Seconds\":600,\"Next\":\"ShareLatestSnapshot\"},\"ShareLatestSnapshot\":{\"Next\":\"MakeSnapshotShareSuccessMessage\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2},{\"ErrorEquals\":[\"InvalidDBSnapshotStateFault\"],\"IntervalSeconds\":120,\"MaxAttempts\":4,\"BackoffRate\":2}],\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"Next\":\"MakeSnapshotShareFailureMessage\"}],\"Type\":\"Task\",\"ResultSelector\":{\"shared_snapshot_id.$\":\"$\"},\"Resource\":\"",
                             {
                                 "Fn::GetAtt": [
                                     "ShareSnapshotCopyLambda0D2A97A9",
                                     "Arn"
                                 ]
                             },
-                            "\"},\"MakeSnapshotShareSuccessMessage\":{\"Type\":\"Pass\",\"Parameters\":{\"detailType\":\"SnapShotShareCompleted\",\"source\":\"cdk-igvf-dev.snapshot-share.SnapshotStateMachine\",\"detail\":{\"metadata\":{\"includes_slack_notification\":true},\"data\":{\"slack\":{\"text.$\":\"States.Format(':white_check_mark: *SnapshotShareSucceeded* | Snapshot ID: {}', $.shared_snapshot_id)\"}}}},\"Next\":\"SendSlackNotification\"},\"SendSlackNotification\":{\"End\":true,\"Type\":\"Task\",\"ResultPath\":null,\"Resource\":\"arn:",
+                            "\"},\"MakeSnapshotShareSuccessMessage\":{\"Type\":\"Pass\",\"Parameters\":{\"detailType\":\"SnapShotShareCompleted\",\"source\":\"cdk-igvf-prod.snapshot-share.SnapshotStateMachine\",\"detail\":{\"metadata\":{\"includes_slack_notification\":true},\"data\":{\"slack\":{\"text.$\":\"States.Format(':white_check_mark: *SnapshotShareSucceeded* | Snapshot ID: {}', $.shared_snapshot_id)\"}}}},\"Next\":\"SendSlackNotification\"},\"SendSlackNotification\":{\"End\":true,\"Type\":\"Task\",\"ResultPath\":null,\"Resource\":\"arn:",
                             {
                                 "Ref": "AWS::Partition"
                             },
-                            ":states:::events:putEvents\",\"Parameters\":{\"Entries\":[{\"Detail.$\":\"$.detail\",\"DetailType.$\":\"$.detailType\",\"Source.$\":\"$.source\"}]}},\"MakeSnapshotCopyFailureMessage\":{\"Type\":\"Pass\",\"Parameters\":{\"detailType\":\"SnapShotCopyFailed\",\"source\":\"cdk-igvf-dev.snapshot-share.SnapshotStateMachine\",\"detail\":{\"metadata\":{\"includes_slack_notification\":true},\"data\":{\"slack\":{\"text.$\":\"States.Format(':x: *SnapshotCopyFailed* | Database ID: {}', 'rds-xyz-123')\"}}}},\"Next\":\"SendSlackNotification\"},\"MakeSnapshotShareFailureMessage\":{\"Type\":\"Pass\",\"Parameters\":{\"detailType\":\"SnapShotShareFailed\",\"source\":\"cdk-igvf-dev.snapshot-share.SnapshotStateMachine\",\"detail\":{\"metadata\":{\"includes_slack_notification\":true},\"data\":{\"slack\":{\"text.$\":\"States.Format(':x: *SnapshotShareFailed* | Database ID: {}', 'rds-xyz-123')\"}}}},\"Next\":\"SendSlackNotification\"}}}"
+                            ":states:::events:putEvents\",\"Parameters\":{\"Entries\":[{\"Detail.$\":\"$.detail\",\"DetailType.$\":\"$.detailType\",\"Source.$\":\"$.source\"}]}},\"MakeSnapshotCopyFailureMessage\":{\"Type\":\"Pass\",\"Parameters\":{\"detailType\":\"SnapShotCopyFailed\",\"source\":\"cdk-igvf-prod.snapshot-share.SnapshotStateMachine\",\"detail\":{\"metadata\":{\"includes_slack_notification\":true},\"data\":{\"slack\":{\"text.$\":\"States.Format(':x: *SnapshotCopyFailed* | Database ID: {}', 'rds-xyz-123')\"}}}},\"Next\":\"SendSlackNotification\"},\"MakeSnapshotShareFailureMessage\":{\"Type\":\"Pass\",\"Parameters\":{\"detailType\":\"SnapShotShareFailed\",\"source\":\"cdk-igvf-prod.snapshot-share.SnapshotStateMachine\",\"detail\":{\"metadata\":{\"includes_slack_notification\":true},\"data\":{\"slack\":{\"text.$\":\"States.Format(':x: *SnapshotShareFailed* | Database ID: {}', 'rds-xyz-123')\"}}}},\"Next\":\"SendSlackNotification\"}}}"
                         ]
                     ]
                 },
