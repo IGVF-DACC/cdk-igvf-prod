@@ -13,7 +13,7 @@ IGVF_PROD_ENV = Environment(
 
 DATABASE_IDENTIFIER = config['db_identifier']
 
-ACCOUNTS = config['accounts']
+ACCOUNTS = config['accounts_snapshot_is_shared_with']
 
 # serialize as string to pass to lambda as env
 SHARE_TO_ACCOUNTS = json.dumps({'accounts': ACCOUNTS})
