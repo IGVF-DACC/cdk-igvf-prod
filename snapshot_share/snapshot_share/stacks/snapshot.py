@@ -238,7 +238,7 @@ class CopySnapshotStepFunction(Stack):
             'CopyAndShareSnapshot',
             schedule=Schedule.cron(
                 hour='14',
-                minute='0',
+                minute='13',
             ),
             targets=[
                 state_machine_target
