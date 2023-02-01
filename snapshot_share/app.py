@@ -6,7 +6,7 @@ from aws_cdk import Environment
 from snapshot_share.stacks.snapshot import CopySnapshotStepFunction
 from snapshot_share.config import config
 
-IGVF_PROD_ENV = Environment(
+ENVIRONMENT = Environment(
     account=config['account'],
     region=config['region']
 )
