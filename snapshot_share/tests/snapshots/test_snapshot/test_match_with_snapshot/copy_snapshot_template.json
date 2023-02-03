@@ -9,7 +9,7 @@
     "Resources": {
         "CopyAndShareSnapshot78AB8679": {
             "Properties": {
-                "ScheduleExpression": "cron(0 14 * * ? *)",
+                "ScheduleExpression": "cron(13 14 * * ? *)",
                 "State": "ENABLED",
                 "Targets": [
                     {
