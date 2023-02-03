@@ -1,0 +1,403 @@
+{
+    "Parameters": {
+        "BootstrapVersion": {
+            "Default": "/cdk-bootstrap/hnb659fds/version",
+            "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+            "Type": "AWS::SSM::Parameter::Value<String>"
+        }
+    },
+    "Resources": {
+        "CopyAndShareSnapshot78AB8679": {
+            "Properties": {
+                "ScheduleExpression": "cron(13 14 * * ? *)",
+                "State": "ENABLED",
+                "Targets": [
+                    {
+                        "Arn": {
+                            "Ref": "StateMachine2E01A3A5"
+                        },
+                        "Id": "Target0",
+                        "RoleArn": {
+                            "Fn::GetAtt": [
+                                "StateMachineEventsRoleDBCDECD1",
+                                "Arn"
+                            ]
+                        }
+                    }
+                ]
+            },
+            "Type": "AWS::Events::Rule"
+        },
+        "MakeLatestSnapshotCopyLambda85C2D3E0": {
+            "DependsOn": [
+                "MakeLatestSnapshotCopyLambdaServiceRoleDefaultPolicy41F3BAEE",
+                "MakeLatestSnapshotCopyLambdaServiceRoleAE6DD60C"
+            ],
+            "Properties": {
+                "Code": {
+                    "S3Bucket": "cdk-hnb659fds-assets-testing-testing",
+                    "S3Key": "3bd8f6a40f712f1c28bf5ae7f5b73be4ee84099f3f659394a32d8a0fc55dba21.zip"
+                },
+                "Environment": {
+                    "Variables": {
+                        "DATABASE_IDENTIFIER": "rds-xyz-123"
+                    }
+                },
+                "Handler": "main.copy_latest_rds_snapshot",
+                "Role": {
+                    "Fn::GetAtt": [
+                        "MakeLatestSnapshotCopyLambdaServiceRoleAE6DD60C",
+                        "Arn"
+                    ]
+                },
+                "Runtime": "python3.9",
+                "Timeout": 60
+            },
+            "Type": "AWS::Lambda::Function"
+        },
+        "MakeLatestSnapshotCopyLambdaServiceRoleAE6DD60C": {
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "sts:AssumeRole",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "lambda.amazonaws.com"
+                            }
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                },
+                "ManagedPolicyArns": [
+                    {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "arn:",
+                                {
+                                    "Ref": "AWS::Partition"
+                                },
+                                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+                            ]
+                        ]
+                    }
+                ]
+            },
+            "Type": "AWS::IAM::Role"
+        },
+        "MakeLatestSnapshotCopyLambdaServiceRoleDefaultPolicy41F3BAEE": {
+            "Properties": {
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": [
+                                "rds:DescribeDBSnapshots",
+                                "rds:CopyDBSnapshot",
+                                "rds:AddTagsToResource"
+                            ],
+                            "Effect": "Allow",
+                            "Resource": "*"
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                },
+                "PolicyName": "MakeLatestSnapshotCopyLambdaServiceRoleDefaultPolicy41F3BAEE",
+                "Roles": [
+                    {
+                        "Ref": "MakeLatestSnapshotCopyLambdaServiceRoleAE6DD60C"
+                    }
+                ]
+            },
+            "Type": "AWS::IAM::Policy"
+        },
+        "ShareSnapshotCopyLambda0D2A97A9": {
+            "DependsOn": [
+                "ShareSnapshotCopyLambdaServiceRoleDefaultPolicy57128ED4",
+                "ShareSnapshotCopyLambdaServiceRole26492343"
+            ],
+            "Properties": {
+                "Code": {
+                    "S3Bucket": "cdk-hnb659fds-assets-testing-testing",
+                    "S3Key": "a79ef3ca9c5253cf33343a093827d8c4418fa07ee59b639d4fcc934b2e7e2824.zip"
+                },
+                "Environment": {
+                    "Variables": {
+                        "SHARE_TO_ACCOUNTS": "{\"accounts\": [\"123456\"]}"
+                    }
+                },
+                "Handler": "main.share_snapshot",
+                "Role": {
+                    "Fn::GetAtt": [
+                        "ShareSnapshotCopyLambdaServiceRole26492343",
+                        "Arn"
+                    ]
+                },
+                "Runtime": "python3.9",
+                "Timeout": 60
+            },
+            "Type": "AWS::Lambda::Function"
+        },
+        "ShareSnapshotCopyLambdaServiceRole26492343": {
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "sts:AssumeRole",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "lambda.amazonaws.com"
+                            }
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                },
+                "ManagedPolicyArns": [
+                    {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "arn:",
+                                {
+                                    "Ref": "AWS::Partition"
+                                },
+                                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+                            ]
+                        ]
+                    }
+                ]
+            },
+            "Type": "AWS::IAM::Role"
+        },
+        "ShareSnapshotCopyLambdaServiceRoleDefaultPolicy57128ED4": {
+            "Properties": {
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "rds:ModifyDBSnapshotAttribute",
+                            "Effect": "Allow",
+                            "Resource": "*"
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                },
+                "PolicyName": "ShareSnapshotCopyLambdaServiceRoleDefaultPolicy57128ED4",
+                "Roles": [
+                    {
+                        "Ref": "ShareSnapshotCopyLambdaServiceRole26492343"
+                    }
+                ]
+            },
+            "Type": "AWS::IAM::Policy"
+        },
+        "StateMachine2E01A3A5": {
+            "DependsOn": [
+                "StateMachineRoleDefaultPolicyDF1E6607",
+                "StateMachineRoleB840431D"
+            ],
+            "Properties": {
+                "DefinitionString": {
+                    "Fn::Join": [
+                        "",
+                        [
+                            "{\"StartAt\":\"MakeCopyOfLatestSnapshot\",\"States\":{\"MakeCopyOfLatestSnapshot\":{\"Next\":\"WaitTenMinutes\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"Next\":\"MakeSnapshotCopyFailureMessage\"}],\"Type\":\"Task\",\"ResultSelector\":{\"copy_latest_rds_snapshot.$\":\"$\"},\"Resource\":\"",
+                            {
+                                "Fn::GetAtt": [
+                                    "MakeLatestSnapshotCopyLambda85C2D3E0",
+                                    "Arn"
+                                ]
+                            },
+                            "\"},\"WaitTenMinutes\":{\"Type\":\"Wait\",\"Seconds\":600,\"Next\":\"ShareLatestSnapshot\"},\"ShareLatestSnapshot\":{\"Next\":\"MakeSnapshotShareSuccessMessage\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2},{\"ErrorEquals\":[\"InvalidDBSnapshotStateFault\"],\"IntervalSeconds\":120,\"MaxAttempts\":4,\"BackoffRate\":2}],\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"Next\":\"MakeSnapshotShareFailureMessage\"}],\"Type\":\"Task\",\"ResultSelector\":{\"shared_snapshot_id.$\":\"$\"},\"Resource\":\"",
+                            {
+                                "Fn::GetAtt": [
+                                    "ShareSnapshotCopyLambda0D2A97A9",
+                                    "Arn"
+                                ]
+                            },
+                            "\"},\"MakeSnapshotShareSuccessMessage\":{\"Type\":\"Pass\",\"Parameters\":{\"detailType\":\"SnapShotShareCompleted\",\"source\":\"cdk-igvf-prod.snapshot-share.SnapshotStateMachine\",\"detail\":{\"metadata\":{\"includes_slack_notification\":true},\"data\":{\"slack\":{\"text.$\":\"States.Format(':white_check_mark: *SnapshotShareSucceeded* | Snapshot ID: {}', $.shared_snapshot_id)\"}}}},\"Next\":\"SendSlackNotification\"},\"SendSlackNotification\":{\"End\":true,\"Type\":\"Task\",\"ResultPath\":null,\"Resource\":\"arn:",
+                            {
+                                "Ref": "AWS::Partition"
+                            },
+                            ":states:::events:putEvents\",\"Parameters\":{\"Entries\":[{\"Detail.$\":\"$.detail\",\"DetailType.$\":\"$.detailType\",\"Source.$\":\"$.source\"}]}},\"MakeSnapshotCopyFailureMessage\":{\"Type\":\"Pass\",\"Parameters\":{\"detailType\":\"SnapShotCopyFailed\",\"source\":\"cdk-igvf-prod.snapshot-share.SnapshotStateMachine\",\"detail\":{\"metadata\":{\"includes_slack_notification\":true},\"data\":{\"slack\":{\"text.$\":\"States.Format(':x: *SnapshotCopyFailed* | Database ID: {}', 'rds-xyz-123')\"}}}},\"Next\":\"SendSlackNotification\"},\"MakeSnapshotShareFailureMessage\":{\"Type\":\"Pass\",\"Parameters\":{\"detailType\":\"SnapShotShareFailed\",\"source\":\"cdk-igvf-prod.snapshot-share.SnapshotStateMachine\",\"detail\":{\"metadata\":{\"includes_slack_notification\":true},\"data\":{\"slack\":{\"text.$\":\"States.Format(':x: *SnapshotShareFailed* | Database ID: {}', 'rds-xyz-123')\"}}}},\"Next\":\"SendSlackNotification\"}}}"
+                        ]
+                    ]
+                },
+                "RoleArn": {
+                    "Fn::GetAtt": [
+                        "StateMachineRoleB840431D",
+                        "Arn"
+                    ]
+                }
+            },
+            "Type": "AWS::StepFunctions::StateMachine"
+        },
+        "StateMachineEventsRoleDBCDECD1": {
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "sts:AssumeRole",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "events.amazonaws.com"
+                            }
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                }
+            },
+            "Type": "AWS::IAM::Role"
+        },
+        "StateMachineEventsRoleDefaultPolicyFB602CA9": {
+            "Properties": {
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "states:StartExecution",
+                            "Effect": "Allow",
+                            "Resource": {
+                                "Ref": "StateMachine2E01A3A5"
+                            }
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                },
+                "PolicyName": "StateMachineEventsRoleDefaultPolicyFB602CA9",
+                "Roles": [
+                    {
+                        "Ref": "StateMachineEventsRoleDBCDECD1"
+                    }
+                ]
+            },
+            "Type": "AWS::IAM::Policy"
+        },
+        "StateMachineRoleB840431D": {
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "sts:AssumeRole",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "states.testing.amazonaws.com"
+                            }
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                }
+            },
+            "Type": "AWS::IAM::Role"
+        },
+        "StateMachineRoleDefaultPolicyDF1E6607": {
+            "Properties": {
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "lambda:InvokeFunction",
+                            "Effect": "Allow",
+                            "Resource": [
+                                {
+                                    "Fn::GetAtt": [
+                                        "MakeLatestSnapshotCopyLambda85C2D3E0",
+                                        "Arn"
+                                    ]
+                                },
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            {
+                                                "Fn::GetAtt": [
+                                                    "MakeLatestSnapshotCopyLambda85C2D3E0",
+                                                    "Arn"
+                                                ]
+                                            },
+                                            ":*"
+                                        ]
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "Action": "lambda:InvokeFunction",
+                            "Effect": "Allow",
+                            "Resource": [
+                                {
+                                    "Fn::GetAtt": [
+                                        "ShareSnapshotCopyLambda0D2A97A9",
+                                        "Arn"
+                                    ]
+                                },
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            {
+                                                "Fn::GetAtt": [
+                                                    "ShareSnapshotCopyLambda0D2A97A9",
+                                                    "Arn"
+                                                ]
+                                            },
+                                            ":*"
+                                        ]
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "Action": "events:PutEvents",
+                            "Effect": "Allow",
+                            "Resource": {
+                                "Fn::Join": [
+                                    "",
+                                    [
+                                        "arn:",
+                                        {
+                                            "Ref": "AWS::Partition"
+                                        },
+                                        ":events:testing:testing:event-bus/default"
+                                    ]
+                                ]
+                            }
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                },
+                "PolicyName": "StateMachineRoleDefaultPolicyDF1E6607",
+                "Roles": [
+                    {
+                        "Ref": "StateMachineRoleB840431D"
+                    }
+                ]
+            },
+            "Type": "AWS::IAM::Policy"
+        }
+    },
+    "Rules": {
+        "CheckBootstrapVersion": {
+            "Assertions": [
+                {
+                    "Assert": {
+                        "Fn::Not": [
+                            {
+                                "Fn::Contains": [
+                                    [
+                                        "1",
+                                        "2",
+                                        "3",
+                                        "4",
+                                        "5"
+                                    ],
+                                    {
+                                        "Ref": "BootstrapVersion"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+                }
+            ]
+        }
+    }
+}
