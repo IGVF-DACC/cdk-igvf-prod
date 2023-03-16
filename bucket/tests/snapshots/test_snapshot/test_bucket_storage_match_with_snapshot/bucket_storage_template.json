@@ -140,6 +140,27 @@
                     "CorsRules": [
                         {
                             "AllowedHeaders": [
+                                "*"
+                            ],
+                            "AllowedMethods": [
+                                "GET",
+                                "HEAD",
+                                "POST",
+                                "PUT"
+                            ],
+                            "AllowedOrigins": [
+                                "https://*-script.googleusercontent.com"
+                            ],
+                            "ExposedHeaders": [
+                                "Content-Length",
+                                "Content-Range",
+                                "Content-Type",
+                                "ETag"
+                            ],
+                            "MaxAge": 3000
+                        },
+                        {
+                            "AllowedHeaders": [
                                 "Accept",
                                 "Origin",
                                 "Range",
