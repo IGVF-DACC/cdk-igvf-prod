@@ -1,0 +1,58 @@
+{
+    "vpc-provider:account=035226225042:filter.vpc-id=vpc-0d874b77b42510f1b:region=us-west-2:returnAsymmetricSubnets=true": {
+        "vpcId": "vpc-0d874b77b42510f1b",
+        "vpcCidrBlock": "10.7.0.0/16",
+        "ownerAccountId": "035226225042",
+        "availabilityZones": [],
+        "subnetGroups": [
+            {
+                "name": "public",
+                "type": "Public",
+                "subnets": [
+                    {
+                        "subnetId": "subnet-0985df0105adde183",
+                        "cidr": "10.7.0.0/20",
+                        "availabilityZone": "us-west-2a",
+                        "routeTableId": "rtb-0d58542d7e0d3e0ad"
+                    },
+                    {
+                        "subnetId": "subnet-0b1658a82a9cedace",
+                        "cidr": "10.7.16.0/20",
+                        "availabilityZone": "us-west-2b",
+                        "routeTableId": "rtb-0594ff90b359b1084"
+                    },
+                    {
+                        "subnetId": "subnet-0f59bda9d619e63ed",
+                        "cidr": "10.7.32.0/20",
+                        "availabilityZone": "us-west-2c",
+                        "routeTableId": "rtb-0704b73d5f1f15ba6"
+                    }
+                ]
+            },
+            {
+                "name": "isolated",
+                "type": "Isolated",
+                "subnets": [
+                    {
+                        "subnetId": "subnet-0ece567bd3137b7c0",
+                        "cidr": "10.7.48.0/20",
+                        "availabilityZone": "us-west-2a",
+                        "routeTableId": "rtb-043858dfbb718a9d3"
+                    },
+                    {
+                        "subnetId": "subnet-0624b3c47684a781b",
+                        "cidr": "10.7.64.0/20",
+                        "availabilityZone": "us-west-2b",
+                        "routeTableId": "rtb-0d34128348a972fec"
+                    },
+                    {
+                        "subnetId": "subnet-077e25fa031e8704b",
+                        "cidr": "10.7.80.0/20",
+                        "availabilityZone": "us-west-2c",
+                        "routeTableId": "rtb-0e5ab0a21bee1428b"
+                    }
+                ]
+            }
+        ]
+    }
+}
