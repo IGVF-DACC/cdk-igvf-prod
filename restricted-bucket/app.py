@@ -3,8 +3,8 @@ from aws_cdk import Environment
 
 from bucket.config import config
 
-from bucket.bucket_storage import BucketStorage
-from bucket.bucket_access_policies import BucketAccessPolicies
+from bucket.bucket_storage import RestrictedBucketStorage
+from bucket.bucket_access_policies import RestrictedBucketAccessPolicies
 
 
 ENVIRONMENT = Environment(
