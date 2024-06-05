@@ -1,0 +1,174 @@
+{
+    "Parameters": {
+        "BootstrapVersion": {
+            "Default": "/cdk-bootstrap/hnb659fds/version",
+            "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+            "Type": "AWS::SSM::Parameter::Value<String>"
+        }
+    },
+    "Resources": {
+        "DownloadIgvfRestrictedFilesPolicy44DDB46D": {
+            "Properties": {
+                "Description": "",
+                "ManagedPolicyName": "download-igvf-restricted-files",
+                "Path": "/",
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": [
+                                "s3:GetObjectVersion",
+                                "s3:GetObject",
+                                "s3:GetBucketAcl",
+                                "s3:ListBucket",
+                                "s3:GetBucketLocation"
+                            ],
+                            "Effect": "Allow",
+                            "Resource": [
+                                {
+                                    "Fn::ImportValue": "RestrictedBucketStorage:ExportsOutputFnGetAttRestrictedFilesBucket40395BF1ArnE6191037"
+                                },
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            {
+                                                "Fn::ImportValue": "RestrictedBucketStorage:ExportsOutputFnGetAttRestrictedFilesBucket40395BF1ArnE6191037"
+                                            },
+                                            "/*"
+                                        ]
+                                    ]
+                                }
+                            ],
+                            "Sid": "AllowReadFromRestrictedFilesBucket"
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                }
+            },
+            "Type": "AWS::IAM::ManagedPolicy"
+        },
+        "UploadIgvfRestrictedFilesPolicy16C1E2A1": {
+            "Properties": {
+                "Description": "",
+                "ManagedPolicyName": "upload-igvf-restricted-files",
+                "Path": "/",
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": [
+                                "s3:PutObject",
+                                "s3:GetObjectVersion",
+                                "s3:GetObject",
+                                "s3:GetBucketAcl",
+                                "s3:ListBucket",
+                                "s3:GetBucketLocation"
+                            ],
+                            "Effect": "Allow",
+                            "Resource": [
+                                {
+                                    "Fn::ImportValue": "RestrictedBucketStorage:ExportsOutputFnGetAttRestrictedFilesBucket40395BF1ArnE6191037"
+                                },
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            {
+                                                "Fn::ImportValue": "RestrictedBucketStorage:ExportsOutputFnGetAttRestrictedFilesBucket40395BF1ArnE6191037"
+                                            },
+                                            "/*"
+                                        ]
+                                    ]
+                                }
+                            ],
+                            "Sid": "AllowReadAndWriteToRestrictedFilesBucket"
+                        },
+                        {
+                            "Action": [
+                                "iam:PassRole",
+                                "sts:GetFederationToken"
+                            ],
+                            "Effect": "Allow",
+                            "Resource": "*",
+                            "Sid": "AllowGenerateFederatedTokenRestrictedFiles"
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                }
+            },
+            "Type": "AWS::IAM::ManagedPolicy"
+        },
+        "UploadIgvfRestrictedFilesUser080F1E42": {
+            "Properties": {
+                "ManagedPolicyArns": [
+                    {
+                        "Ref": "UploadIgvfRestrictedFilesPolicy16C1E2A1"
+                    }
+                ],
+                "UserName": "upload-igvf-restricted-files"
+            },
+            "Type": "AWS::IAM::User"
+        },
+        "UploadIgvfRestrictedFilesUserAccessKey438C7AAC": {
+            "Properties": {
+                "UserName": {
+                    "Ref": "UploadIgvfRestrictedFilesUser080F1E42"
+                }
+            },
+            "Type": "AWS::IAM::AccessKey"
+        },
+        "UploadIgvfRestrictedFilesUserAccessKeySecretE0ABE90B": {
+            "DeletionPolicy": "Delete",
+            "Properties": {
+                "Name": "upload-igvf-restricted-files-user-access-key-secret",
+                "SecretString": {
+                    "Fn::Join": [
+                        "",
+                        [
+                            "{\"ACCESS_KEY\":\"",
+                            {
+                                "Ref": "UploadIgvfRestrictedFilesUserAccessKey438C7AAC"
+                            },
+                            "\",\"SECRET_ACCESS_KEY\":\"",
+                            {
+                                "Fn::GetAtt": [
+                                    "UploadIgvfRestrictedFilesUserAccessKey438C7AAC",
+                                    "SecretAccessKey"
+                                ]
+                            },
+                            "\"}"
+                        ]
+                    ]
+                }
+            },
+            "Type": "AWS::SecretsManager::Secret",
+            "UpdateReplacePolicy": "Delete"
+        }
+    },
+    "Rules": {
+        "CheckBootstrapVersion": {
+            "Assertions": [
+                {
+                    "Assert": {
+                        "Fn::Not": [
+                            {
+                                "Fn::Contains": [
+                                    [
+                                        "1",
+                                        "2",
+                                        "3",
+                                        "4",
+                                        "5"
+                                    ],
+                                    {
+                                        "Ref": "BootstrapVersion"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+                }
+            ]
+        }
+    }
+}

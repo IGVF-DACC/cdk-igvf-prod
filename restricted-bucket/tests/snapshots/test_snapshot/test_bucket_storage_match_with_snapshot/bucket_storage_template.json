@@ -1,0 +1,117 @@
+{
+    "Parameters": {
+        "BootstrapVersion": {
+            "Default": "/cdk-bootstrap/hnb659fds/version",
+            "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+            "Type": "AWS::SSM::Parameter::Value<String>"
+        }
+    },
+    "Resources": {
+        "RestrictedFilesBucket40395BF1": {
+            "DeletionPolicy": "Retain",
+            "Properties": {
+                "BucketName": "igvf-restricted-files",
+                "CorsConfiguration": {
+                    "CorsRules": [
+                        {
+                            "AllowedHeaders": [
+                                "*"
+                            ],
+                            "AllowedMethods": [
+                                "GET",
+                                "HEAD",
+                                "POST",
+                                "PUT"
+                            ],
+                            "AllowedOrigins": [
+                                "https://*-script.googleusercontent.com"
+                            ],
+                            "ExposedHeaders": [
+                                "Content-Length",
+                                "Content-Range",
+                                "Content-Type",
+                                "ETag"
+                            ],
+                            "MaxAge": 3000
+                        },
+                        {
+                            "AllowedHeaders": [
+                                "Accept",
+                                "Origin",
+                                "Range",
+                                "X-Requested-With",
+                                "Cache-Control"
+                            ],
+                            "AllowedMethods": [
+                                "GET",
+                                "HEAD"
+                            ],
+                            "AllowedOrigins": [
+                                "*"
+                            ],
+                            "ExposedHeaders": [
+                                "Content-Length",
+                                "Content-Range",
+                                "Content-Type"
+                            ],
+                            "MaxAge": 3000
+                        }
+                    ]
+                },
+                "LoggingConfiguration": {
+                    "DestinationBucketName": {
+                        "Ref": "RestrictedFilesLogsBucketE4C14D48"
+                    }
+                },
+                "VersioningConfiguration": {
+                    "Status": "Enabled"
+                }
+            },
+            "Type": "AWS::S3::Bucket",
+            "UpdateReplacePolicy": "Retain"
+        },
+        "RestrictedFilesLogsBucketE4C14D48": {
+            "DeletionPolicy": "Retain",
+            "Properties": {
+                "AccessControl": "LogDeliveryWrite",
+                "BucketName": "igvf-restricted-files-logs",
+                "OwnershipControls": {
+                    "Rules": [
+                        {
+                            "ObjectOwnership": "ObjectWriter"
+                        }
+                    ]
+                }
+            },
+            "Type": "AWS::S3::Bucket",
+            "UpdateReplacePolicy": "Retain"
+        }
+    },
+    "Rules": {
+        "CheckBootstrapVersion": {
+            "Assertions": [
+                {
+                    "Assert": {
+                        "Fn::Not": [
+                            {
+                                "Fn::Contains": [
+                                    [
+                                        "1",
+                                        "2",
+                                        "3",
+                                        "4",
+                                        "5"
+                                    ],
+                                    {
+                                        "Ref": "BootstrapVersion"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+                }
+            ]
+        }
+    }
+}
