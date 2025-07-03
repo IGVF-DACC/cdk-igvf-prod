@@ -249,7 +249,7 @@ RULES = {
             "VisibilityConfig": {
                 "SampledRequestsEnabled": True,
                 "CloudWatchMetricsEnabled": True,
-                "MetricName": "AWS-AWSManagedRulesAnonymousIpList",
+                "MetricName": "AWS-AWSManagedRulesAnonymousIpList"
             }
         },
         {
