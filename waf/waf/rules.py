@@ -232,7 +232,15 @@ RULES = {
             "Statement": {
                 "ManagedRuleGroupStatement": {
                     "VendorName": "AWS",
-                    "Name": "AWSManagedRulesAnonymousIpList"
+                    "Name": "AWSManagedRulesAnonymousIpList",
+                    "RuleActionOverrides": [
+                        {
+                            "Name": "HostingProviderIPList",
+                            "ActionToUse": {
+                                "Count": {}
+                            }
+                        }
+                    ]
                 }
             },
             "OverrideAction": {
@@ -241,7 +249,7 @@ RULES = {
             "VisibilityConfig": {
                 "SampledRequestsEnabled": True,
                 "CloudWatchMetricsEnabled": True,
-                "MetricName": "AWS-AWSManagedRulesAnonymousIpList"
+                "MetricName": "AWS-AWSManagedRulesAnonymousIpList",
             }
         },
         {
