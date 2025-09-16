@@ -62,6 +62,7 @@ CORS = CorsRule(
         'Content-Length',
         'Content-Range',
         'Content-Type',
+        'ETag',
     ],
     max_age=3000,
 )
