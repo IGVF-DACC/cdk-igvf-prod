@@ -31,7 +31,8 @@
                             "ExposedHeaders": [
                                 "Content-Length",
                                 "Content-Range",
-                                "Content-Type"
+                                "Content-Type",
+                                "ETag"
                             ],
                             "MaxAge": 3000
                         }
@@ -177,7 +178,8 @@
                             "ExposedHeaders": [
                                 "Content-Length",
                                 "Content-Range",
-                                "Content-Type"
+                                "Content-Type",
+                                "ETag"
                             ],
                             "MaxAge": 3000
                         }

@@ -51,7 +51,11 @@
                                             "/*"
                                         ]
                                     ]
-                                }
+                                },
+                                "arn:aws:s3:::igvf-public",
+                                "arn:aws:s3:::igvf-public/*",
+                                "arn:aws:s3:::igvf-private",
+                                "arn:aws:s3:::igvf-private/*"
                             ],
                             "Sid": "AllowReadFromFilesAndBlobsBuckets"
                         }
