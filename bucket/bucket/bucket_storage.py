@@ -22,6 +22,9 @@ FILES_BUCKET_NAME = 'igvf-files'
 
 IGVF_TRANSFER_USER_ARN = 'arn:aws:iam::407227577691:user/igvf-files-transfer'
 
+S3_BATCH_OPERATION_COPY_ROLE_ARN = 'arn:aws:iam::407227577691:role/IGVFBucketAccessPolicies-S3BatchOperationCopyObject-6wmJYD0XgxSv'
+
+
 BROWSER_UPLOAD_CORS = CorsRule(
     allowed_methods=[
         HttpMethods.GET,
@@ -192,4 +195,28 @@ class BucketStorage(Stack):
 
         self.files_bucket.add_to_resource_policy(
             self.igvf_transfer_user_upload_bucket_policy_statement,
+        )
+
+        self.s3_batch_operation_copy_object_role_read_access_policy = PolicyStatement(
+            sid='AllowS3BatchOperationRoleReadFromUploadBucket',
+            principals=[
+                ArnPrincipal(S3_BATCH_OPERATION_COPY_ROLE_ARN)
+            ],
+            resources=[
+                self.files_bucket.bucket_arn,
+                self.files_bucket.arn_for_objects('*'),
+            ],
+            actions=[
+                's3:GetObject',
+                's3:GetObjectVersion',
+                's3:GetObjectAcl',
+                's3:GetObjectTagging',
+                's3:GetObjectVersionAcl',
+                's3:GetObjectVersionTagging',
+                's3:ListBucket',
+            ],
+        )
+
+        self.files_bucket.add_to_resource_policy(
+            self.s3_batch_operation_copy_object_role_read_access_policy
         )

@@ -302,6 +302,44 @@
                                 }
                             ],
                             "Sid": "AllowIgvfTransferUserReadFromUploadBucket"
+                        },
+                        {
+                            "Action": [
+                                "s3:GetObject",
+                                "s3:GetObjectVersion",
+                                "s3:GetObjectAcl",
+                                "s3:GetObjectTagging",
+                                "s3:GetObjectVersionAcl",
+                                "s3:GetObjectVersionTagging",
+                                "s3:ListBucket"
+                            ],
+                            "Effect": "Allow",
+                            "Principal": {
+                                "AWS": "arn:aws:iam::407227577691:role/IGVFBucketAccessPolicies-S3BatchOperationCopyObject-6wmJYD0XgxSv"
+                            },
+                            "Resource": [
+                                {
+                                    "Fn::GetAtt": [
+                                        "FilesBucket16450113",
+                                        "Arn"
+                                    ]
+                                },
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            {
+                                                "Fn::GetAtt": [
+                                                    "FilesBucket16450113",
+                                                    "Arn"
+                                                ]
+                                            },
+                                            "/*"
+                                        ]
+                                    ]
+                                }
+                            ],
+                            "Sid": "AllowS3BatchOperationRoleReadFromUploadBucket"
                         }
                     ],
                     "Version": "2012-10-17"
