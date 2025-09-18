@@ -301,7 +301,7 @@
                                     ]
                                 }
                             ],
-                            "Sid": "AllowReadFromFilesBucket"
+                            "Sid": "AllowIgvfTransferUserReadFromUploadBucket"
                         }
                     ],
                     "Version": "2012-10-17"

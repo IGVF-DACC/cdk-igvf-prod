@@ -167,11 +167,14 @@ class BucketStorage(Stack):
         )
 
         self.igvf_transfer_user_principal = ArnPrincipal(
-            IGVF_TRANSFER_USER_ARN)
+            IGVF_TRANSFER_USER_ARN
+        )
 
         self.igvf_transfer_user_upload_bucket_policy_statement = PolicyStatement(
-            sid='AllowReadFromFilesBucket',
-            principals=[self.igvf_transfer_user_principal],
+            sid='AllowIgvfTransferUserReadFromUploadBucket',
+            principals=[
+                self.igvf_transfer_user_principal
+            ],
             resources=[
                 self.files_bucket.bucket_arn,
                 self.files_bucket.arn_for_objects('*'),
