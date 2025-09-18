@@ -3,6 +3,7 @@ from aws_cdk import Stack
 from aws_cdk import RemovalPolicy
 
 from aws_cdk.aws_iam import AccountPrincipal
+from aws_cdk.aws_iam import ArnPrincipal
 from aws_cdk.aws_iam import ManagedPolicy
 from aws_cdk.aws_iam import PolicyStatement
 
@@ -19,6 +20,7 @@ from typing import List
 BLOBS_BUCKET_NAME = 'igvf-blobs'
 FILES_BUCKET_NAME = 'igvf-files'
 
+IGVF_TRANSFER_USER_ARN = 'arn:aws:iam::407227577691:user/igvf-files-transfer'
 
 BROWSER_UPLOAD_CORS = CorsRule(
     allowed_methods=[
@@ -162,4 +164,29 @@ class BucketStorage(Stack):
 
         self.files_bucket.add_to_resource_policy(
             self.files_bucket_read_access_policy
+        )
+
+        self.igvf_transfer_user_principal = ArnPrincipal(
+            IGVF_TRANSFER_USER_ARN)
+
+        self.igvf_transfer_user_upload_bucket_policy_statement = PolicyStatement(
+            sid='AllowReadFromFilesBucket',
+            principals=[self.igvf_transfer_user_principal],
+            resources=[
+                self.files_bucket.bucket_arn,
+                self.files_bucket.arn_for_objects('*'),
+            ],
+            actions=[
+                's3:GetBucketAcl',
+                's3:GetBucketLocation',
+                's3:GetObject',
+                's3:GetObjectTagging',
+                's3:GetObjectVersion',
+                's3:ListBucket',
+                's3:PutObjectTagging'
+            ]
+        )
+
+        self.files_bucket.add_to_resource_policy(
+            self.igvf_transfer_user_upload_bucket_policy_statement,
         )
