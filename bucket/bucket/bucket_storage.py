@@ -207,12 +207,12 @@ class BucketStorage(Stack):
                 self.files_bucket.arn_for_objects('*'),
             ],
             actions=[
-                "s3:GetObject",
-                "s3:GetObjectVersion",
-                "s3:GetObjectAcl",
-                "s3:GetObjectTagging",
-                "s3:GetObjectVersionAcl",
-                "s3:GetObjectVersionTagging",
+                's3:GetObject',
+                's3:GetObjectVersion',
+                's3:GetObjectAcl',
+                's3:GetObjectTagging',
+                's3:GetObjectVersionAcl',
+                's3:GetObjectVersionTagging',
                 's3:ListBucket',
             ],
         )
