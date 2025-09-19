@@ -167,13 +167,6 @@ class BucketStorage(Stack):
             removal_policy=RemovalPolicy.RETAIN,
             server_access_logs_bucket=self.blobs_logs_bucket,
             versioned=True,
-            lifecycle_rules=[
-                INTELLIGENT_TIERING_RULE,
-                ABORT_INCOMPLETE_MULTIPART_UPLOAD_RULE,
-                NONCURRENT_VERSION_GLACIER_TRANSITION_RULE,
-                TAGGED_OBJECTS_GLACIER_TRANSITION_RULE,
-                COPIED_OBJECTS_GLACIER_TRANSITION_RULE,
-            ],
         )
 
         self.blobs_bucket_read_access_policy = generate_read_access_policy_for_bucket(
