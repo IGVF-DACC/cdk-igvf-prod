@@ -38,6 +38,72 @@
                         }
                     ]
                 },
+                "LifecycleConfiguration": {
+                    "Rules": [
+                        {
+                            "Id": "AllObjectsToIntelligentTieringRule",
+                            "Status": "Enabled",
+                            "Transitions": [
+                                {
+                                    "StorageClass": "INTELLIGENT_TIERING",
+                                    "TransitionInDays": 0
+                                }
+                            ]
+                        },
+                        {
+                            "AbortIncompleteMultipartUpload": {
+                                "DaysAfterInitiation": 7
+                            },
+                            "Id": "DeleteIncompleteMultipartUploadRule",
+                            "Status": "Enabled"
+                        },
+                        {
+                            "Id": "OldVersionsToGlacierTransitionRule",
+                            "NoncurrentVersionExpiration": {
+                                "NoncurrentDays": 90
+                            },
+                            "NoncurrentVersionTransitions": [
+                                {
+                                    "StorageClass": "GLACIER",
+                                    "TransitionInDays": 0
+                                }
+                            ],
+                            "Status": "Enabled"
+                        },
+                        {
+                            "Id": "TaggedObjectsGlacierTransitionRule",
+                            "Status": "Enabled",
+                            "TagFilters": [
+                                {
+                                    "Key": "send_to_glacier",
+                                    "Value": "true"
+                                }
+                            ],
+                            "Transitions": [
+                                {
+                                    "StorageClass": "GLACIER",
+                                    "TransitionInDays": 0
+                                }
+                            ]
+                        },
+                        {
+                            "Id": "CopiedObjectsGlacierTransitionRule",
+                            "Status": "Enabled",
+                            "TagFilters": [
+                                {
+                                    "Key": "copied_to",
+                                    "Value": "open_data_account"
+                                }
+                            ],
+                            "Transitions": [
+                                {
+                                    "StorageClass": "GLACIER",
+                                    "TransitionInDays": 1
+                                }
+                            ]
+                        }
+                    ]
+                },
                 "LoggingConfiguration": {
                     "DestinationBucketName": {
                         "Ref": "BlobsLogsBucketB52427AB"
@@ -182,6 +248,72 @@
                                 "ETag"
                             ],
                             "MaxAge": 3000
+                        }
+                    ]
+                },
+                "LifecycleConfiguration": {
+                    "Rules": [
+                        {
+                            "Id": "AllObjectsToIntelligentTieringRule",
+                            "Status": "Enabled",
+                            "Transitions": [
+                                {
+                                    "StorageClass": "INTELLIGENT_TIERING",
+                                    "TransitionInDays": 0
+                                }
+                            ]
+                        },
+                        {
+                            "AbortIncompleteMultipartUpload": {
+                                "DaysAfterInitiation": 7
+                            },
+                            "Id": "DeleteIncompleteMultipartUploadRule",
+                            "Status": "Enabled"
+                        },
+                        {
+                            "Id": "OldVersionsToGlacierTransitionRule",
+                            "NoncurrentVersionExpiration": {
+                                "NoncurrentDays": 90
+                            },
+                            "NoncurrentVersionTransitions": [
+                                {
+                                    "StorageClass": "GLACIER",
+                                    "TransitionInDays": 0
+                                }
+                            ],
+                            "Status": "Enabled"
+                        },
+                        {
+                            "Id": "TaggedObjectsGlacierTransitionRule",
+                            "Status": "Enabled",
+                            "TagFilters": [
+                                {
+                                    "Key": "send_to_glacier",
+                                    "Value": "true"
+                                }
+                            ],
+                            "Transitions": [
+                                {
+                                    "StorageClass": "GLACIER",
+                                    "TransitionInDays": 0
+                                }
+                            ]
+                        },
+                        {
+                            "Id": "CopiedObjectsGlacierTransitionRule",
+                            "Status": "Enabled",
+                            "TagFilters": [
+                                {
+                                    "Key": "copied_to",
+                                    "Value": "open_data_account"
+                                }
+                            ],
+                            "Transitions": [
+                                {
+                                    "StorageClass": "GLACIER",
+                                    "TransitionInDays": 1
+                                }
+                            ]
                         }
                     ]
                 },
