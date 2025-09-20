@@ -30,7 +30,7 @@ IGVF_TRANSFER_USER_ARN = 'arn:aws:iam::407227577691:user/igvf-files-transfer'
 S3_BATCH_OPERATION_COPY_ROLE_ARN = 'arn:aws:iam::407227577691:role/IGVFBucketAccessPolicies-S3BatchOperationCopyObject-6wmJYD0XgxSv'
 
 INTELLIGENT_TIERING_RULE = LifecycleRule(
-    id='AllObjectsToIntelligentTieringRule',
+    id='move-all-objects-to-intelligent-tiering',
     transitions=[
         Transition(
             storage_class=StorageClass.INTELLIGENT_TIERING,
@@ -40,38 +40,38 @@ INTELLIGENT_TIERING_RULE = LifecycleRule(
 )
 
 ABORT_INCOMPLETE_MULTIPART_UPLOAD_RULE = LifecycleRule(
-    id='DeleteIncompleteMultipartUploadRule',
+    id='delete-incomplete-multipart-uploads',
     abort_incomplete_multipart_upload_after=Duration.days(7),
 )
 
 NONCURRENT_VERSION_GLACIER_TRANSITION_RULE = LifecycleRule(
-    id='OldVersionsToGlacierTransitionRule',
+    id='send-old-versions-to-glacier',
     noncurrent_version_transitions=[
         NoncurrentVersionTransition(
             storage_class=StorageClass.GLACIER,
             transition_after=Duration.days(0),
         )
     ],
-    noncurrent_version_expiration=Duration.days(90),
+    noncurrent_version_expiration=Duration.days(30),
 )
 
 TAGGED_OBJECTS_GLACIER_TRANSITION_RULE = LifecycleRule(
-    id='TaggedObjectsGlacierTransitionRule',
+    id='send-tagged-objects-to-glacier',
     tag_filters={'send_to_glacier': 'true'},
     transitions=[
         Transition(
-            storage_class=StorageClass.GLACIER,
+            storage_class=StorageClass.DEEP_ARCHIVE,
             transition_after=Duration.days(0),
         )
     ]
 )
 
 COPIED_OBJECTS_GLACIER_TRANSITION_RULE = LifecycleRule(
-    id='CopiedObjectsGlacierTransitionRule',
+    id='send-objects-copied-to-open-data-account-to-glacier',
     tag_filters={'copied_to': 'open_data_account'},
     transitions=[
         Transition(
-            storage_class=StorageClass.GLACIER,
+            storage_class=StorageClass.DEEP_ARCHIVE,
             transition_after=Duration.days(1),
         )
     ]

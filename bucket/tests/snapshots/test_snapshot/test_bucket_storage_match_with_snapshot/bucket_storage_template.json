@@ -188,7 +188,7 @@
                 "LifecycleConfiguration": {
                     "Rules": [
                         {
-                            "Id": "AllObjectsToIntelligentTieringRule",
+                            "Id": "move-all-objects-to-intelligent-tiering",
                             "Status": "Enabled",
                             "Transitions": [
                                 {
@@ -201,13 +201,13 @@
                             "AbortIncompleteMultipartUpload": {
                                 "DaysAfterInitiation": 7
                             },
-                            "Id": "DeleteIncompleteMultipartUploadRule",
+                            "Id": "delete-incomplete-multipart-uploads",
                             "Status": "Enabled"
                         },
                         {
-                            "Id": "OldVersionsToGlacierTransitionRule",
+                            "Id": "send-old-versions-to-glacier",
                             "NoncurrentVersionExpiration": {
-                                "NoncurrentDays": 90
+                                "NoncurrentDays": 30
                             },
                             "NoncurrentVersionTransitions": [
                                 {
@@ -218,7 +218,7 @@
                             "Status": "Enabled"
                         },
                         {
-                            "Id": "TaggedObjectsGlacierTransitionRule",
+                            "Id": "send-tagged-objects-to-glacier",
                             "Status": "Enabled",
                             "TagFilters": [
                                 {
@@ -228,13 +228,13 @@
                             ],
                             "Transitions": [
                                 {
-                                    "StorageClass": "GLACIER",
+                                    "StorageClass": "DEEP_ARCHIVE",
                                     "TransitionInDays": 0
                                 }
                             ]
                         },
                         {
-                            "Id": "CopiedObjectsGlacierTransitionRule",
+                            "Id": "send-objects-copied-to-open-data-account-to-glacier",
                             "Status": "Enabled",
                             "TagFilters": [
                                 {
@@ -244,7 +244,7 @@
                             ],
                             "Transitions": [
                                 {
-                                    "StorageClass": "GLACIER",
+                                    "StorageClass": "DEEP_ARCHIVE",
                                     "TransitionInDays": 1
                                 }
                             ]
