@@ -185,6 +185,72 @@
                         }
                     ]
                 },
+                "LifecycleConfiguration": {
+                    "Rules": [
+                        {
+                            "Id": "move-all-objects-to-intelligent-tiering",
+                            "Status": "Enabled",
+                            "Transitions": [
+                                {
+                                    "StorageClass": "INTELLIGENT_TIERING",
+                                    "TransitionInDays": 0
+                                }
+                            ]
+                        },
+                        {
+                            "AbortIncompleteMultipartUpload": {
+                                "DaysAfterInitiation": 7
+                            },
+                            "Id": "delete-incomplete-multipart-uploads",
+                            "Status": "Enabled"
+                        },
+                        {
+                            "Id": "send-old-versions-to-glacier",
+                            "NoncurrentVersionExpiration": {
+                                "NoncurrentDays": 30
+                            },
+                            "NoncurrentVersionTransitions": [
+                                {
+                                    "StorageClass": "GLACIER",
+                                    "TransitionInDays": 0
+                                }
+                            ],
+                            "Status": "Enabled"
+                        },
+                        {
+                            "Id": "send-tagged-objects-to-glacier",
+                            "Status": "Enabled",
+                            "TagFilters": [
+                                {
+                                    "Key": "send_to_glacier",
+                                    "Value": "true"
+                                }
+                            ],
+                            "Transitions": [
+                                {
+                                    "StorageClass": "DEEP_ARCHIVE",
+                                    "TransitionInDays": 0
+                                }
+                            ]
+                        },
+                        {
+                            "Id": "send-objects-copied-to-open-data-account-to-glacier",
+                            "Status": "Enabled",
+                            "TagFilters": [
+                                {
+                                    "Key": "copied_to",
+                                    "Value": "open_data_account"
+                                }
+                            ],
+                            "Transitions": [
+                                {
+                                    "StorageClass": "DEEP_ARCHIVE",
+                                    "TransitionInDays": 1
+                                }
+                            ]
+                        }
+                    ]
+                },
                 "LoggingConfiguration": {
                     "DestinationBucketName": {
                         "Ref": "FilesLogsBucket47918849"

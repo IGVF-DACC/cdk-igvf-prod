@@ -1,4 +1,5 @@
 from aws_cdk import App
+from aws_cdk import Duration
 from aws_cdk import Stack
 from aws_cdk import RemovalPolicy
 
@@ -10,6 +11,10 @@ from aws_cdk.aws_iam import PolicyStatement
 from aws_cdk.aws_s3 import Bucket
 from aws_cdk.aws_s3 import CorsRule
 from aws_cdk.aws_s3 import HttpMethods
+from aws_cdk.aws_s3 import LifecycleRule
+from aws_cdk.aws_s3 import NoncurrentVersionTransition
+from aws_cdk.aws_s3 import StorageClass
+from aws_cdk.aws_s3 import Transition
 
 from constructs import Construct
 
@@ -24,6 +29,53 @@ IGVF_TRANSFER_USER_ARN = 'arn:aws:iam::407227577691:user/igvf-files-transfer'
 
 S3_BATCH_OPERATION_COPY_ROLE_ARN = 'arn:aws:iam::407227577691:role/IGVFBucketAccessPolicies-S3BatchOperationCopyObject-6wmJYD0XgxSv'
 
+INTELLIGENT_TIERING_RULE = LifecycleRule(
+    id='move-all-objects-to-intelligent-tiering',
+    transitions=[
+        Transition(
+            storage_class=StorageClass.INTELLIGENT_TIERING,
+            transition_after=Duration.days(0),
+        )
+    ]
+)
+
+ABORT_INCOMPLETE_MULTIPART_UPLOAD_RULE = LifecycleRule(
+    id='delete-incomplete-multipart-uploads',
+    abort_incomplete_multipart_upload_after=Duration.days(7),
+)
+
+NONCURRENT_VERSION_GLACIER_TRANSITION_RULE = LifecycleRule(
+    id='send-old-versions-to-glacier',
+    noncurrent_version_transitions=[
+        NoncurrentVersionTransition(
+            storage_class=StorageClass.GLACIER,
+            transition_after=Duration.days(0),
+        )
+    ],
+    noncurrent_version_expiration=Duration.days(30),
+)
+
+TAGGED_OBJECTS_GLACIER_TRANSITION_RULE = LifecycleRule(
+    id='send-tagged-objects-to-glacier',
+    tag_filters={'send_to_glacier': 'true'},
+    transitions=[
+        Transition(
+            storage_class=StorageClass.DEEP_ARCHIVE,
+            transition_after=Duration.days(0),
+        )
+    ]
+)
+
+COPIED_OBJECTS_GLACIER_TRANSITION_RULE = LifecycleRule(
+    id='send-objects-copied-to-open-data-account-to-glacier',
+    tag_filters={'copied_to': 'open_data_account'},
+    transitions=[
+        Transition(
+            storage_class=StorageClass.DEEP_ARCHIVE,
+            transition_after=Duration.days(1),
+        )
+    ]
+)
 
 BROWSER_UPLOAD_CORS = CorsRule(
     allowed_methods=[
@@ -151,6 +203,13 @@ class BucketStorage(Stack):
             removal_policy=RemovalPolicy.RETAIN,
             server_access_logs_bucket=self.files_logs_bucket,
             versioned=True,
+            lifecycle_rules=[
+                INTELLIGENT_TIERING_RULE,
+                ABORT_INCOMPLETE_MULTIPART_UPLOAD_RULE,
+                NONCURRENT_VERSION_GLACIER_TRANSITION_RULE,
+                TAGGED_OBJECTS_GLACIER_TRANSITION_RULE,
+                COPIED_OBJECTS_GLACIER_TRANSITION_RULE,
+            ],
         )
 
         self.files_bucket_read_access_policy = generate_read_access_policy_for_bucket(
