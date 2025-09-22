@@ -89,38 +89,6 @@
                                 }
                             ],
                             "Status": "Enabled"
-                        },
-                        {
-                            "Id": "send-tagged-objects-to-glacier",
-                            "Status": "Enabled",
-                            "TagFilters": [
-                                {
-                                    "Key": "send_to_glacier",
-                                    "Value": "true"
-                                }
-                            ],
-                            "Transitions": [
-                                {
-                                    "StorageClass": "DEEP_ARCHIVE",
-                                    "TransitionInDays": 0
-                                }
-                            ]
-                        },
-                        {
-                            "Id": "send-objects-copied-to-open-data-account-to-glacier",
-                            "Status": "Enabled",
-                            "TagFilters": [
-                                {
-                                    "Key": "copied_to",
-                                    "Value": "open_data_account"
-                                }
-                            ],
-                            "Transitions": [
-                                {
-                                    "StorageClass": "DEEP_ARCHIVE",
-                                    "TransitionInDays": 1
-                                }
-                            ]
                         }
                     ]
                 },

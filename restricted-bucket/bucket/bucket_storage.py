@@ -72,28 +72,6 @@ NONCURRENT_VERSION_GLACIER_TRANSITION_RULE = LifecycleRule(
     noncurrent_version_expiration=Duration.days(30),
 )
 
-TAGGED_OBJECTS_GLACIER_TRANSITION_RULE = LifecycleRule(
-    id='send-tagged-objects-to-glacier',
-    tag_filters={'send_to_glacier': 'true'},
-    transitions=[
-        Transition(
-            storage_class=StorageClass.DEEP_ARCHIVE,
-            transition_after=Duration.days(0),
-        )
-    ]
-)
-
-COPIED_OBJECTS_GLACIER_TRANSITION_RULE = LifecycleRule(
-    id='send-objects-copied-to-open-data-account-to-glacier',
-    tag_filters={'copied_to': 'open_data_account'},
-    transitions=[
-        Transition(
-            storage_class=StorageClass.DEEP_ARCHIVE,
-            transition_after=Duration.days(1),
-        )
-    ]
-)
-
 CORS = CorsRule(
     allowed_methods=[
         HttpMethods.GET,
@@ -165,7 +143,5 @@ class RestrictedBucketStorage(Stack):
                 INTELLIGENT_TIERING_RULE,
                 ABORT_INCOMPLETE_MULTIPART_UPLOAD_RULE,
                 NONCURRENT_VERSION_GLACIER_TRANSITION_RULE,
-                TAGGED_OBJECTS_GLACIER_TRANSITION_RULE,
-                COPIED_OBJECTS_GLACIER_TRANSITION_RULE,
             ],
         )
