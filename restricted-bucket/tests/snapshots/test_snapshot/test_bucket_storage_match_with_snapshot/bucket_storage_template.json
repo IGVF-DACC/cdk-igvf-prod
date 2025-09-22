@@ -108,7 +108,14 @@
             "DeletionPolicy": "Retain",
             "Properties": {
                 "AccessControl": "LogDeliveryWrite",
-                "BucketName": "igvf-restricted-files-logs"
+                "BucketName": "igvf-restricted-files-logs",
+                "OwnershipControls": {
+                    "Rules": [
+                        {
+                            "ObjectOwnership": "ObjectWriter"
+                        }
+                    ]
+                }
             },
             "Type": "AWS::S3::Bucket",
             "UpdateReplacePolicy": "Retain"
