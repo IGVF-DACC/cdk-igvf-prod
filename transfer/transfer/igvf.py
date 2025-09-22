@@ -1,5 +1,6 @@
 from aws_cdk import Stack
 from aws_cdk import Size
+from aws_cdk import Duration
 
 from aws_cdk.aws_ec2 import SubnetSelection
 from aws_cdk.aws_ec2 import SubnetType
