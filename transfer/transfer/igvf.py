@@ -150,8 +150,8 @@ class IGVFFileTransferStack(Stack):
                 './docker',
                 platform=Platform.LINUX_AMD64,
             ),
-            memory=Size.mebibytes(10000),
-            cpu=1,
+            memory=Size.mebibytes(10240),
+            cpu=2,
             environment={},
             secrets={
                 'ACCESS_KEY': Secret.from_secrets_manager(
