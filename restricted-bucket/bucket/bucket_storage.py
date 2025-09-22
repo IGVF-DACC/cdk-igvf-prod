@@ -1,4 +1,5 @@
 from aws_cdk import App
+from aws_cdk import Duration
 from aws_cdk import Stack
 from aws_cdk import RemovalPolicy
 
@@ -9,6 +10,10 @@ from aws_cdk.aws_iam import PolicyStatement
 from aws_cdk.aws_s3 import Bucket
 from aws_cdk.aws_s3 import CorsRule
 from aws_cdk.aws_s3 import HttpMethods
+from aws_cdk.aws_s3 import LifecycleRule
+from aws_cdk.aws_s3 import NoncurrentVersionTransition
+from aws_cdk.aws_s3 import StorageClass
+from aws_cdk.aws_s3 import Transition
 
 from constructs import Construct
 
@@ -41,6 +46,31 @@ BROWSER_UPLOAD_CORS = CorsRule(
     max_age=3000,
 )
 
+INTELLIGENT_TIERING_RULE = LifecycleRule(
+    id='move-all-objects-to-intelligent-tiering',
+    transitions=[
+        Transition(
+            storage_class=StorageClass.INTELLIGENT_TIERING,
+            transition_after=Duration.days(0),
+        )
+    ]
+)
+
+ABORT_INCOMPLETE_MULTIPART_UPLOAD_RULE = LifecycleRule(
+    id='delete-incomplete-multipart-uploads',
+    abort_incomplete_multipart_upload_after=Duration.days(7),
+)
+
+NONCURRENT_VERSION_GLACIER_TRANSITION_RULE = LifecycleRule(
+    id='send-old-versions-to-glacier',
+    noncurrent_version_transitions=[
+        NoncurrentVersionTransition(
+            storage_class=StorageClass.GLACIER,
+            transition_after=Duration.days(0),
+        )
+    ],
+    noncurrent_version_expiration=Duration.days(30),
+)
 
 CORS = CorsRule(
     allowed_methods=[
@@ -109,4 +139,9 @@ class RestrictedBucketStorage(Stack):
             removal_policy=RemovalPolicy.RETAIN,
             server_access_logs_bucket=self.restricted_files_logs_bucket,
             versioned=True,
+            lifecycle_rules=[
+                INTELLIGENT_TIERING_RULE,
+                ABORT_INCOMPLETE_MULTIPART_UPLOAD_RULE,
+                NONCURRENT_VERSION_GLACIER_TRANSITION_RULE,
+            ],
         )

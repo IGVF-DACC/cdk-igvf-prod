@@ -58,6 +58,40 @@
                         }
                     ]
                 },
+                "LifecycleConfiguration": {
+                    "Rules": [
+                        {
+                            "Id": "move-all-objects-to-intelligent-tiering",
+                            "Status": "Enabled",
+                            "Transitions": [
+                                {
+                                    "StorageClass": "INTELLIGENT_TIERING",
+                                    "TransitionInDays": 0
+                                }
+                            ]
+                        },
+                        {
+                            "AbortIncompleteMultipartUpload": {
+                                "DaysAfterInitiation": 7
+                            },
+                            "Id": "delete-incomplete-multipart-uploads",
+                            "Status": "Enabled"
+                        },
+                        {
+                            "Id": "send-old-versions-to-glacier",
+                            "NoncurrentVersionExpiration": {
+                                "NoncurrentDays": 30
+                            },
+                            "NoncurrentVersionTransitions": [
+                                {
+                                    "StorageClass": "GLACIER",
+                                    "TransitionInDays": 0
+                                }
+                            ],
+                            "Status": "Enabled"
+                        }
+                    ]
+                },
                 "LoggingConfiguration": {
                     "DestinationBucketName": {
                         "Ref": "RestrictedFilesLogsBucketE4C14D48"
