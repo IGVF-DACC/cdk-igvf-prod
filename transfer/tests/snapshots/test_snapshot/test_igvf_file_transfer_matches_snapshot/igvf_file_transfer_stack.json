@@ -204,7 +204,6 @@
                             "Value": "1"
                         }
                     ],
-                    "RuntimePlatform": {},
                     "Secrets": [
                         {
                             "Name": "ACCESS_KEY",
@@ -490,7 +489,6 @@
                             "Value": "2"
                         }
                     ],
-                    "RuntimePlatform": {},
                     "Secrets": [
                         {
                             "Name": "ACCESS_KEY",
