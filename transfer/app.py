@@ -1,7 +1,7 @@
 from aws_cdk import App
 from aws_cdk import Environment
 
-from transfer.anvil import AnvilFileTransferStack
+from transfer.igvf import IGVFFileTransferStack
 
 
 app = App()
@@ -13,9 +13,9 @@ US_WEST_2 = Environment(
 )
 
 
-AnvilFileTransferStack(
+IGVFFileTransferStack(
     app,
-    'AnvilFileTransferStack',
+    'IGVFFileTransferStack',
     env=US_WEST_2,
 )
 
