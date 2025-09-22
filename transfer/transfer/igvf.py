@@ -171,7 +171,7 @@ class IGVFFileTransferStack(Stack):
                     field='portal_secret_key',
                 )
             },
-            command=["./run-dump.sh"],
+            command=['./run-dump.sh'],
             logging=LogDriver.aws_logs(
                 stream_prefix='igvf-file-transfer',
                 mode=AwsLogDriverMode.NON_BLOCKING,
