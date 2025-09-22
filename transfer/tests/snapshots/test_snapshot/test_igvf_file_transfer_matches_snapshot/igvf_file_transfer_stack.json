@@ -177,7 +177,7 @@
                     },
                     "FargatePlatformConfiguration": {},
                     "Image": {
-                        "Fn::Sub": "testing.dkr.ecr.testing.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-testing-testing:4ae208fd99985bfe4c02210517621074147bb8948a7e756b9a948e7c58b85f65"
+                        "Fn::Sub": "testing.dkr.ecr.testing.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-testing-testing:e687ca5019baab95ef3175e127b25e8f1c85ef4c98eae31b1963d9939dadbecc"
                     },
                     "LogConfiguration": {
                         "LogDriver": "awslogs",
@@ -463,7 +463,7 @@
                     },
                     "FargatePlatformConfiguration": {},
                     "Image": {
-                        "Fn::Sub": "testing.dkr.ecr.testing.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-testing-testing:4ae208fd99985bfe4c02210517621074147bb8948a7e756b9a948e7c58b85f65"
+                        "Fn::Sub": "testing.dkr.ecr.testing.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-testing-testing:e687ca5019baab95ef3175e127b25e8f1c85ef4c98eae31b1963d9939dadbecc"
                     },
                     "LogConfiguration": {
                         "LogDriver": "awslogs",
