@@ -13,16 +13,16 @@ ENVIRONMENT = Environment(
 )
 
 
-def test_anvil_file_transfer_matches_snapshot(snapshot):
-    from transfer.anvil import AnvilFileTransferStack
+def test_igvf_file_transfer_matches_snapshot(snapshot):
+    from transfer.igvf import IGVFFileTransferStack
     app = App()
-    aft = AnvilFileTransferStack(
+    ift = IGVFFileTransferStack(
         app,
-        'AnvilFileTransferStack',
+        'IGVFFileTransferStack',
         env=ENVIRONMENT,
     )
     template = Template.from_stack(
-        aft
+        ift
     )
     snapshot.assert_match(
         json.dumps(
@@ -30,5 +30,5 @@ def test_anvil_file_transfer_matches_snapshot(snapshot):
             indent=4,
             sort_keys=True
         ),
-        'anvil_file_transfer_stack.json'
+        'igvf_file_transfer_stack.json'
     )

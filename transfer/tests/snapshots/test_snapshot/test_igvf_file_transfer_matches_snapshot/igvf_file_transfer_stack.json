@@ -1,0 +1,919 @@
+{
+    "Parameters": {
+        "BootstrapVersion": {
+            "Default": "/cdk-bootstrap/hnb659fds/version",
+            "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+            "Type": "AWS::SSM::Parameter::Value<String>"
+        },
+        "SlackWebhookUrlParameter": {
+            "Default": "SLACK_WEBHOOK_URL_FOR_AWS_IGVF_PROD_CHANNEL",
+            "Type": "AWS::SSM::Parameter::Value<String>"
+        }
+    },
+    "Resources": {
+        "ComputeEnvironmentC570994D": {
+            "Properties": {
+                "ComputeEnvironmentName": "IGVFFileTransferCompute",
+                "ComputeResources": {
+                    "MaxvCpus": 2,
+                    "SecurityGroupIds": [
+                        {
+                            "Fn::GetAtt": [
+                                "ComputeEnvironmentSecurityGroupA8641310",
+                                "GroupId"
+                            ]
+                        }
+                    ],
+                    "Subnets": [
+                        "s-12345",
+                        "s-67890"
+                    ],
+                    "Type": "FARGATE"
+                },
+                "ReplaceComputeEnvironment": false,
+                "State": "ENABLED",
+                "Type": "managed",
+                "UpdatePolicy": {}
+            },
+            "Type": "AWS::Batch::ComputeEnvironment"
+        },
+        "ComputeEnvironmentSecurityGroupA8641310": {
+            "Properties": {
+                "GroupDescription": "IGVFFileTransferStack/ComputeEnvironment/SecurityGroup",
+                "SecurityGroupEgress": [
+                    {
+                        "CidrIp": "0.0.0.0/0",
+                        "Description": "Allow all outbound traffic by default",
+                        "IpProtocol": "-1"
+                    }
+                ],
+                "VpcId": "vpc-12345"
+            },
+            "Type": "AWS::EC2::SecurityGroup"
+        },
+        "FileTransferJobQueue09F9B76D": {
+            "Properties": {
+                "ComputeEnvironmentOrder": [
+                    {
+                        "ComputeEnvironment": {
+                            "Fn::GetAtt": [
+                                "ComputeEnvironmentC570994D",
+                                "ComputeEnvironmentArn"
+                            ]
+                        },
+                        "Order": 1
+                    }
+                ],
+                "JobQueueName": "IGVFFileTransferJobQueue",
+                "Priority": 1,
+                "State": "ENABLED"
+            },
+            "Type": "AWS::Batch::JobQueue"
+        },
+        "IGVFFileTransferContainerExecutionRole58C2714B": {
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "sts:AssumeRole",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "ecs-tasks.amazonaws.com"
+                            }
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                }
+            },
+            "Type": "AWS::IAM::Role"
+        },
+        "IGVFFileTransferContainerExecutionRoleDefaultPolicy2488CC4E": {
+            "Properties": {
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": [
+                                "logs:CreateLogStream",
+                                "logs:PutLogEvents"
+                            ],
+                            "Effect": "Allow",
+                            "Resource": {
+                                "Fn::GetAtt": [
+                                    "IGVFFileTransferContainerLogGroup90FCEF7B",
+                                    "Arn"
+                                ]
+                            }
+                        },
+                        {
+                            "Action": [
+                                "ecr:BatchCheckLayerAvailability",
+                                "ecr:GetDownloadUrlForLayer",
+                                "ecr:BatchGetImage"
+                            ],
+                            "Effect": "Allow",
+                            "Resource": {
+                                "Fn::Join": [
+                                    "",
+                                    [
+                                        "arn:",
+                                        {
+                                            "Ref": "AWS::Partition"
+                                        },
+                                        ":ecr:testing:testing:repository/cdk-hnb659fds-container-assets-testing-testing"
+                                    ]
+                                ]
+                            }
+                        },
+                        {
+                            "Action": "ecr:GetAuthorizationToken",
+                            "Effect": "Allow",
+                            "Resource": "*"
+                        },
+                        {
+                            "Action": [
+                                "secretsmanager:GetSecretValue",
+                                "secretsmanager:DescribeSecret"
+                            ],
+                            "Effect": "Allow",
+                            "Resource": "arn:aws:secretsmanager:us-west-2:035226225042:secret:igvf-files-transfer-user-access-key-secret-1H0EXY"
+                        },
+                        {
+                            "Action": [
+                                "secretsmanager:GetSecretValue",
+                                "secretsmanager:DescribeSecret"
+                            ],
+                            "Effect": "Allow",
+                            "Resource": "arn:aws:secretsmanager:us-west-2:035226225042:secret:igvf-files-transfer-user-portal-keys-J0yWyn"
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                },
+                "PolicyName": "IGVFFileTransferContainerExecutionRoleDefaultPolicy2488CC4E",
+                "Roles": [
+                    {
+                        "Ref": "IGVFFileTransferContainerExecutionRole58C2714B"
+                    }
+                ]
+            },
+            "Type": "AWS::IAM::Policy"
+        },
+        "IGVFFileTransferContainerLogGroup90FCEF7B": {
+            "DeletionPolicy": "Retain",
+            "Properties": {
+                "RetentionInDays": 30
+            },
+            "Type": "AWS::Logs::LogGroup",
+            "UpdateReplacePolicy": "Retain"
+        },
+        "IGVFFileTransferJobDefB19FC479": {
+            "Properties": {
+                "ContainerProperties": {
+                    "Environment": [],
+                    "ExecutionRoleArn": {
+                        "Fn::GetAtt": [
+                            "IGVFFileTransferContainerExecutionRole58C2714B",
+                            "Arn"
+                        ]
+                    },
+                    "FargatePlatformConfiguration": {},
+                    "Image": {
+                        "Fn::Sub": "testing.dkr.ecr.testing.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-testing-testing:6a9bd6451b4d46c86752196e83295c9989535fe4f8bfec1924d499d45469d16d"
+                    },
+                    "LogConfiguration": {
+                        "LogDriver": "awslogs",
+                        "Options": {
+                            "awslogs-group": {
+                                "Ref": "IGVFFileTransferContainerLogGroup90FCEF7B"
+                            },
+                            "awslogs-region": "testing",
+                            "awslogs-stream-prefix": "igvf-file-transfer",
+                            "mode": "non-blocking"
+                        }
+                    },
+                    "NetworkConfiguration": {
+                        "AssignPublicIp": "ENABLED"
+                    },
+                    "ReadonlyRootFilesystem": false,
+                    "ResourceRequirements": [
+                        {
+                            "Type": "MEMORY",
+                            "Value": "2048"
+                        },
+                        {
+                            "Type": "VCPU",
+                            "Value": "1"
+                        }
+                    ],
+                    "Secrets": [
+                        {
+                            "Name": "ACCESS_KEY",
+                            "ValueFrom": "arn:aws:secretsmanager:us-west-2:035226225042:secret:igvf-files-transfer-user-access-key-secret-1H0EXY:ACCESS_KEY::"
+                        },
+                        {
+                            "Name": "SECRET_ACCESS_KEY",
+                            "ValueFrom": "arn:aws:secretsmanager:us-west-2:035226225042:secret:igvf-files-transfer-user-access-key-secret-1H0EXY:SECRET_ACCESS_KEY::"
+                        },
+                        {
+                            "Name": "PORTAL_KEY",
+                            "ValueFrom": "arn:aws:secretsmanager:us-west-2:035226225042:secret:igvf-files-transfer-user-portal-keys-J0yWyn:portal_key::"
+                        },
+                        {
+                            "Name": "PORTAL_SECRET_KEY",
+                            "ValueFrom": "arn:aws:secretsmanager:us-west-2:035226225042:secret:igvf-files-transfer-user-portal-keys-J0yWyn:portal_secret_key::"
+                        }
+                    ]
+                },
+                "PlatformCapabilities": [
+                    "FARGATE"
+                ],
+                "RetryStrategy": {},
+                "Timeout": {
+                    "AttemptDurationSeconds": 64800
+                },
+                "Type": "container"
+            },
+            "Type": "AWS::Batch::JobDefinition"
+        },
+        "IGVFFileTransferJobDefEventsRole7478113C": {
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "sts:AssumeRole",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "events.amazonaws.com"
+                            }
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                }
+            },
+            "Type": "AWS::IAM::Role"
+        },
+        "IGVFFileTransferJobDefEventsRoleDefaultPolicy9FCFEDB0": {
+            "Properties": {
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "batch:SubmitJob",
+                            "Effect": "Allow",
+                            "Resource": [
+                                {
+                                    "Ref": "IGVFFileTransferJobDefB19FC479"
+                                },
+                                {
+                                    "Fn::GetAtt": [
+                                        "FileTransferJobQueue09F9B76D",
+                                        "JobQueueArn"
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                },
+                "PolicyName": "IGVFFileTransferJobDefEventsRoleDefaultPolicy9FCFEDB0",
+                "Roles": [
+                    {
+                        "Ref": "IGVFFileTransferJobDefEventsRole7478113C"
+                    }
+                ]
+            },
+            "Type": "AWS::IAM::Policy"
+        },
+        "IGVFFileTransferJobRoleE3B4599B": {
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "sts:AssumeRole",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "ecs-tasks.amazonaws.com"
+                            }
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                }
+            },
+            "Type": "AWS::IAM::Role"
+        },
+        "IGVFFileTransferSlackNotificationApiDestination27B7593B": {
+            "Properties": {
+                "ConnectionArn": "arn:aws:events:us-west-2:035226225042:connection/AwsIgvfProdSlackWebhookConnectionA3A57238-fgUoGdv828dW/46172d44-83a8-4c1e-9790-15f208e3477b",
+                "HttpMethod": "POST",
+                "InvocationEndpoint": {
+                    "Ref": "SlackWebhookUrlParameter"
+                }
+            },
+            "Type": "AWS::Events::ApiDestination"
+        },
+        "IGVFFileTransferSlackNotificationEventsRole77379E87": {
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "sts:AssumeRole",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "events.amazonaws.com"
+                            }
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                }
+            },
+            "Type": "AWS::IAM::Role"
+        },
+        "IGVFFileTransferSlackNotificationEventsRoleDefaultPolicyAFC2D8CF": {
+            "Properties": {
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "events:InvokeApiDestination",
+                            "Effect": "Allow",
+                            "Resource": {
+                                "Fn::GetAtt": [
+                                    "IGVFFileTransferSlackNotificationApiDestination27B7593B",
+                                    "Arn"
+                                ]
+                            }
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                },
+                "PolicyName": "IGVFFileTransferSlackNotificationEventsRoleDefaultPolicyAFC2D8CF",
+                "Roles": [
+                    {
+                        "Ref": "IGVFFileTransferSlackNotificationEventsRole77379E87"
+                    }
+                ]
+            },
+            "Type": "AWS::IAM::Policy"
+        },
+        "IGVFMetadataDumpContainerExecutionRole7C9E8305": {
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "sts:AssumeRole",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "ecs-tasks.amazonaws.com"
+                            }
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                }
+            },
+            "Type": "AWS::IAM::Role"
+        },
+        "IGVFMetadataDumpContainerExecutionRoleDefaultPolicyE31B1972": {
+            "Properties": {
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": [
+                                "logs:CreateLogStream",
+                                "logs:PutLogEvents"
+                            ],
+                            "Effect": "Allow",
+                            "Resource": {
+                                "Fn::GetAtt": [
+                                    "IGVFMetadataDumpContainerLogGroup41C10095",
+                                    "Arn"
+                                ]
+                            }
+                        },
+                        {
+                            "Action": [
+                                "ecr:BatchCheckLayerAvailability",
+                                "ecr:GetDownloadUrlForLayer",
+                                "ecr:BatchGetImage"
+                            ],
+                            "Effect": "Allow",
+                            "Resource": {
+                                "Fn::Join": [
+                                    "",
+                                    [
+                                        "arn:",
+                                        {
+                                            "Ref": "AWS::Partition"
+                                        },
+                                        ":ecr:testing:testing:repository/cdk-hnb659fds-container-assets-testing-testing"
+                                    ]
+                                ]
+                            }
+                        },
+                        {
+                            "Action": "ecr:GetAuthorizationToken",
+                            "Effect": "Allow",
+                            "Resource": "*"
+                        },
+                        {
+                            "Action": [
+                                "secretsmanager:GetSecretValue",
+                                "secretsmanager:DescribeSecret"
+                            ],
+                            "Effect": "Allow",
+                            "Resource": "arn:aws:secretsmanager:us-west-2:035226225042:secret:igvf-files-transfer-user-access-key-secret-1H0EXY"
+                        },
+                        {
+                            "Action": [
+                                "secretsmanager:GetSecretValue",
+                                "secretsmanager:DescribeSecret"
+                            ],
+                            "Effect": "Allow",
+                            "Resource": "arn:aws:secretsmanager:us-west-2:035226225042:secret:igvf-files-transfer-user-portal-keys-J0yWyn"
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                },
+                "PolicyName": "IGVFMetadataDumpContainerExecutionRoleDefaultPolicyE31B1972",
+                "Roles": [
+                    {
+                        "Ref": "IGVFMetadataDumpContainerExecutionRole7C9E8305"
+                    }
+                ]
+            },
+            "Type": "AWS::IAM::Policy"
+        },
+        "IGVFMetadataDumpContainerLogGroup41C10095": {
+            "DeletionPolicy": "Retain",
+            "Properties": {
+                "RetentionInDays": 30
+            },
+            "Type": "AWS::Logs::LogGroup",
+            "UpdateReplacePolicy": "Retain"
+        },
+        "MetadataDumpJobDef134C2910": {
+            "Properties": {
+                "ContainerProperties": {
+                    "Command": [
+                        "./run-dump.sh"
+                    ],
+                    "Environment": [],
+                    "ExecutionRoleArn": {
+                        "Fn::GetAtt": [
+                            "IGVFMetadataDumpContainerExecutionRole7C9E8305",
+                            "Arn"
+                        ]
+                    },
+                    "FargatePlatformConfiguration": {},
+                    "Image": {
+                        "Fn::Sub": "testing.dkr.ecr.testing.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-testing-testing:6a9bd6451b4d46c86752196e83295c9989535fe4f8bfec1924d499d45469d16d"
+                    },
+                    "LogConfiguration": {
+                        "LogDriver": "awslogs",
+                        "Options": {
+                            "awslogs-group": {
+                                "Ref": "IGVFMetadataDumpContainerLogGroup41C10095"
+                            },
+                            "awslogs-region": "testing",
+                            "awslogs-stream-prefix": "igvf-file-transfer",
+                            "mode": "non-blocking"
+                        }
+                    },
+                    "NetworkConfiguration": {
+                        "AssignPublicIp": "ENABLED"
+                    },
+                    "ReadonlyRootFilesystem": false,
+                    "ResourceRequirements": [
+                        {
+                            "Type": "MEMORY",
+                            "Value": "10240"
+                        },
+                        {
+                            "Type": "VCPU",
+                            "Value": "2"
+                        }
+                    ],
+                    "Secrets": [
+                        {
+                            "Name": "ACCESS_KEY",
+                            "ValueFrom": "arn:aws:secretsmanager:us-west-2:035226225042:secret:igvf-files-transfer-user-access-key-secret-1H0EXY:ACCESS_KEY::"
+                        },
+                        {
+                            "Name": "SECRET_ACCESS_KEY",
+                            "ValueFrom": "arn:aws:secretsmanager:us-west-2:035226225042:secret:igvf-files-transfer-user-access-key-secret-1H0EXY:SECRET_ACCESS_KEY::"
+                        },
+                        {
+                            "Name": "PORTAL_KEY",
+                            "ValueFrom": "arn:aws:secretsmanager:us-west-2:035226225042:secret:igvf-files-transfer-user-portal-keys-J0yWyn:portal_key::"
+                        },
+                        {
+                            "Name": "PORTAL_SECRET_KEY",
+                            "ValueFrom": "arn:aws:secretsmanager:us-west-2:035226225042:secret:igvf-files-transfer-user-portal-keys-J0yWyn:portal_secret_key::"
+                        }
+                    ]
+                },
+                "PlatformCapabilities": [
+                    "FARGATE"
+                ],
+                "RetryStrategy": {},
+                "Timeout": {
+                    "AttemptDurationSeconds": 3600
+                },
+                "Type": "container"
+            },
+            "Type": "AWS::Batch::JobDefinition"
+        },
+        "MetadataDumpJobDefEventsRole48D76532": {
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "sts:AssumeRole",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "events.amazonaws.com"
+                            }
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                }
+            },
+            "Type": "AWS::IAM::Role"
+        },
+        "MetadataDumpJobDefEventsRoleDefaultPolicy822CE462": {
+            "Properties": {
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "batch:SubmitJob",
+                            "Effect": "Allow",
+                            "Resource": [
+                                {
+                                    "Ref": "MetadataDumpJobDef134C2910"
+                                },
+                                {
+                                    "Fn::GetAtt": [
+                                        "MetadatadumpJobQueueD13E0960",
+                                        "JobQueueArn"
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                },
+                "PolicyName": "MetadataDumpJobDefEventsRoleDefaultPolicy822CE462",
+                "Roles": [
+                    {
+                        "Ref": "MetadataDumpJobDefEventsRole48D76532"
+                    }
+                ]
+            },
+            "Type": "AWS::IAM::Policy"
+        },
+        "MetadatadumpJobQueueD13E0960": {
+            "Properties": {
+                "ComputeEnvironmentOrder": [
+                    {
+                        "ComputeEnvironment": {
+                            "Fn::GetAtt": [
+                                "ComputeEnvironmentC570994D",
+                                "ComputeEnvironmentArn"
+                            ]
+                        },
+                        "Order": 1
+                    }
+                ],
+                "JobQueueName": "IGVFMetadataDumpJobQueue",
+                "Priority": 1,
+                "State": "ENABLED"
+            },
+            "Type": "AWS::Batch::JobQueue"
+        },
+        "NotifySlackIGVFFileTransferFailedE7956C60": {
+            "Properties": {
+                "EventPattern": {
+                    "detail": {
+                        "jobQueue": [
+                            {
+                                "Fn::GetAtt": [
+                                    "FileTransferJobQueue09F9B76D",
+                                    "JobQueueArn"
+                                ]
+                            }
+                        ],
+                        "status": [
+                            "FAILED"
+                        ]
+                    },
+                    "detail-type": [
+                        "Batch Job State Change"
+                    ],
+                    "source": [
+                        "aws.batch"
+                    ]
+                },
+                "State": "ENABLED",
+                "Targets": [
+                    {
+                        "Arn": {
+                            "Fn::GetAtt": [
+                                "IGVFFileTransferSlackNotificationApiDestination27B7593B",
+                                "Arn"
+                            ]
+                        },
+                        "Id": "Target0",
+                        "Input": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "{\"text\":\":x: *IGVFFileTransferFailed* | ",
+                                    {
+                                        "Fn::GetAtt": [
+                                            "FileTransferJobQueue09F9B76D",
+                                            "JobQueueArn"
+                                        ]
+                                    },
+                                    "\"}"
+                                ]
+                            ]
+                        },
+                        "RoleArn": {
+                            "Fn::GetAtt": [
+                                "IGVFFileTransferSlackNotificationEventsRole77379E87",
+                                "Arn"
+                            ]
+                        }
+                    }
+                ]
+            },
+            "Type": "AWS::Events::Rule"
+        },
+        "NotifySlackIGVFFileTransferSucceeded216FCE46": {
+            "Properties": {
+                "EventPattern": {
+                    "detail": {
+                        "jobQueue": [
+                            {
+                                "Fn::GetAtt": [
+                                    "FileTransferJobQueue09F9B76D",
+                                    "JobQueueArn"
+                                ]
+                            }
+                        ],
+                        "status": [
+                            "SUCCEEDED"
+                        ]
+                    },
+                    "detail-type": [
+                        "Batch Job State Change"
+                    ],
+                    "source": [
+                        "aws.batch"
+                    ]
+                },
+                "State": "ENABLED",
+                "Targets": [
+                    {
+                        "Arn": {
+                            "Fn::GetAtt": [
+                                "IGVFFileTransferSlackNotificationApiDestination27B7593B",
+                                "Arn"
+                            ]
+                        },
+                        "Id": "Target0",
+                        "Input": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "{\"text\":\":white_check_mark: *IGVFFileTransferSucceeded* | ",
+                                    {
+                                        "Fn::GetAtt": [
+                                            "FileTransferJobQueue09F9B76D",
+                                            "JobQueueArn"
+                                        ]
+                                    },
+                                    "\"}"
+                                ]
+                            ]
+                        },
+                        "RoleArn": {
+                            "Fn::GetAtt": [
+                                "IGVFFileTransferSlackNotificationEventsRole77379E87",
+                                "Arn"
+                            ]
+                        }
+                    }
+                ]
+            },
+            "Type": "AWS::Events::Rule"
+        },
+        "NotifySlackIGVFMetadataDumpFailed9769F454": {
+            "Properties": {
+                "EventPattern": {
+                    "detail": {
+                        "jobQueue": [
+                            {
+                                "Fn::GetAtt": [
+                                    "MetadatadumpJobQueueD13E0960",
+                                    "JobQueueArn"
+                                ]
+                            }
+                        ],
+                        "status": [
+                            "FAILED"
+                        ]
+                    },
+                    "detail-type": [
+                        "Batch Job State Change"
+                    ],
+                    "source": [
+                        "aws.batch"
+                    ]
+                },
+                "State": "ENABLED",
+                "Targets": [
+                    {
+                        "Arn": {
+                            "Fn::GetAtt": [
+                                "IGVFFileTransferSlackNotificationApiDestination27B7593B",
+                                "Arn"
+                            ]
+                        },
+                        "Id": "Target0",
+                        "Input": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "{\"text\":\":x: *IGVFMetadataDumpFailed* | ",
+                                    {
+                                        "Fn::GetAtt": [
+                                            "MetadatadumpJobQueueD13E0960",
+                                            "JobQueueArn"
+                                        ]
+                                    },
+                                    "\"}"
+                                ]
+                            ]
+                        },
+                        "RoleArn": {
+                            "Fn::GetAtt": [
+                                "IGVFFileTransferSlackNotificationEventsRole77379E87",
+                                "Arn"
+                            ]
+                        }
+                    }
+                ]
+            },
+            "Type": "AWS::Events::Rule"
+        },
+        "NotifySlackIGVFMetadataDumpSucceededF279AE6C": {
+            "Properties": {
+                "EventPattern": {
+                    "detail": {
+                        "jobQueue": [
+                            {
+                                "Fn::GetAtt": [
+                                    "MetadatadumpJobQueueD13E0960",
+                                    "JobQueueArn"
+                                ]
+                            }
+                        ],
+                        "status": [
+                            "SUCCEEDED"
+                        ]
+                    },
+                    "detail-type": [
+                        "Batch Job State Change"
+                    ],
+                    "source": [
+                        "aws.batch"
+                    ]
+                },
+                "State": "ENABLED",
+                "Targets": [
+                    {
+                        "Arn": {
+                            "Fn::GetAtt": [
+                                "IGVFFileTransferSlackNotificationApiDestination27B7593B",
+                                "Arn"
+                            ]
+                        },
+                        "Id": "Target0",
+                        "Input": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "{\"text\":\":white_check_mark: *IGVFMetadataDumpSucceeded* | ",
+                                    {
+                                        "Fn::GetAtt": [
+                                            "MetadatadumpJobQueueD13E0960",
+                                            "JobQueueArn"
+                                        ]
+                                    },
+                                    "\"}"
+                                ]
+                            ]
+                        },
+                        "RoleArn": {
+                            "Fn::GetAtt": [
+                                "IGVFFileTransferSlackNotificationEventsRole77379E87",
+                                "Arn"
+                            ]
+                        }
+                    }
+                ]
+            },
+            "Type": "AWS::Events::Rule"
+        },
+        "startigvffiletransferF0FB0C35": {
+            "Properties": {
+                "ScheduleExpression": "cron(59 6 * * ? *)",
+                "State": "ENABLED",
+                "Targets": [
+                    {
+                        "Arn": {
+                            "Fn::GetAtt": [
+                                "FileTransferJobQueue09F9B76D",
+                                "JobQueueArn"
+                            ]
+                        },
+                        "BatchParameters": {
+                            "JobDefinition": {
+                                "Ref": "IGVFFileTransferJobDefB19FC479"
+                            },
+                            "JobName": "IGVFFileTransferBatchJob"
+                        },
+                        "Id": "Target0",
+                        "RetryPolicy": {
+                            "MaximumRetryAttempts": 0
+                        },
+                        "RoleArn": {
+                            "Fn::GetAtt": [
+                                "IGVFFileTransferJobDefEventsRole7478113C",
+                                "Arn"
+                            ]
+                        }
+                    }
+                ]
+            },
+            "Type": "AWS::Events::Rule"
+        },
+        "startigvfmetadatadump509C40E6": {
+            "Properties": {
+                "ScheduleExpression": "cron(59 9 * * ? *)",
+                "State": "ENABLED",
+                "Targets": [
+                    {
+                        "Arn": {
+                            "Fn::GetAtt": [
+                                "MetadatadumpJobQueueD13E0960",
+                                "JobQueueArn"
+                            ]
+                        },
+                        "BatchParameters": {
+                            "JobDefinition": {
+                                "Ref": "MetadataDumpJobDef134C2910"
+                            },
+                            "JobName": "IGVFMetadataDumpBatchJob"
+                        },
+                        "Id": "Target0",
+                        "RetryPolicy": {
+                            "MaximumRetryAttempts": 0
+                        },
+                        "RoleArn": {
+                            "Fn::GetAtt": [
+                                "MetadataDumpJobDefEventsRole48D76532",
+                                "Arn"
+                            ]
+                        }
+                    }
+                ]
+            },
+            "Type": "AWS::Events::Rule"
+        }
+    },
+    "Rules": {
+        "CheckBootstrapVersion": {
+            "Assertions": [
+                {
+                    "Assert": {
+                        "Fn::Not": [
+                            {
+                                "Fn::Contains": [
+                                    [
+                                        "1",
+                                        "2",
+                                        "3",
+                                        "4",
+                                        "5"
+                                    ],
+                                    {
+                                        "Ref": "BootstrapVersion"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+                }
+            ]
+        }
+    }
+}
