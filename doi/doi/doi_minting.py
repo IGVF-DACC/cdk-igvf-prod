@@ -83,6 +83,18 @@ class DoiMintingStack(Stack):
             )
         )
 
+        igvf_doi_minting_user_portal_keys = SMSecret.from_secret_complete_arn(
+            self,
+            'IgvfDoiMintingUserPortalKeys',
+            'arn:aws:secretsmanager:us-west-2:035226225042:secret:igvf-doi-minting-user-portal-keys-vXwOg4'
+        )
+
+        doi_minting_crossref_credentials = SMSecret.from_secret_complete_arn(
+            self,
+            'DoiMintingCrossrefCredentials',
+            'arn:aws:secretsmanager:us-west-2:035226225042:secret:doi-minting-crossref-credentials-r4Yvfx'
+        )
+
         doi_minting_container = EcsFargateContainerDefinition(
             self,
             'DoiMintingContainer',
@@ -93,14 +105,15 @@ class DoiMintingStack(Stack):
             ),
             memory=Size.mebibytes(1024),
             cpu=1,
-            environment={},
+            environment={'CROSSREF_SERVER': 'https://doi.crossref.org/servlet/deposit',
+                         'IGVF_SERVER': 'https://data.igvf.org'},
             secrets={
                 'PORTAL_KEY': Secret.from_secrets_manager(
-                    secret=doi_minting_portal_keys,
+                    secret=igvf_doi_minting_user_portal_keys,
                     field='portal_key',
                 ),
                 'PORTAL_SECRET_KEY': Secret.from_secrets_manager(
-                    secret=doi_minting_portal_keys,
+                    secret=igvf_doi_minting_user_portal_keys,
                     field='portal_secret_key',
                 ),
                 'CROSSREF_LOGIN': Secret.from_secrets_manager(
@@ -110,14 +123,6 @@ class DoiMintingStack(Stack):
                 'CROSSREF_PASSWORD': Secret.from_secrets_manager(
                     secret=doi_minting_crossref_credentials,
                     field='crossref_password',
-                ),
-                'CROSSREF_SERVER': Secret.from_secrets_manager(
-                    secret=doi_minting_servers,
-                    field='crossref_server',
-                ),
-                'IGVF_SERVER': Secret.from_secrets_manager(
-                    secret=doi_minting_servers,
-                    field='igvf_server',
                 ),
             },
             logging=LogDriver.aws_logs(
