@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN useradd -m ift
+RUN useradd -m doi
 
 RUN python -m venv $VIRTUAL_ENV
 
@@ -25,7 +25,7 @@ RUN chown -R doi:doi $VIRTUAL_ENV
 
 WORKDIR /doi
 
-RUN git clone -b ${VERSION} --depth 1 https://github.com/IGVF-DACC/crossref-submitter .
+RUN git clone -b ${VERSION} --depth 1 https://github.com/IGVF-DACC/crossref_submitter .
 
 RUN pip install -e .
 
