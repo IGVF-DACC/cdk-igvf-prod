@@ -136,15 +136,15 @@ class DoiMintingStack(Stack):
             self,
             'DoiMintingJobDefinition',
             container=doi_minting_container,
-            timeout=Duration.hours(1),
+            timeout=Duration.hours(4),
         )
 
         start_doi_minting_rule = Rule(
             self,
             'StartDoiMintingRule',
             schedule=Schedule.cron(
-                minute='59',
-                hour='6',
+                minute='55',
+                hour='5',
                 day='*',
                 month='*',
                 year='*'

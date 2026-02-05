@@ -1,28 +1,17 @@
-#!/usr/bin/env python3
-import os
+from aws_cdk import App
+from aws_cdk import Environment
 
-import aws_cdk as cdk
-
-from doi.doi_stack import DoiStack
+from doi.doi_minting import DoiMintingStack
 
 
-app = cdk.App()
-DoiStack(app, 'DoiStack',
-         # If you don't specify 'env', this stack will be environment-agnostic.
-         # Account/Region-dependent features and context lookups will not work,
-         # but a single synthesized template can be deployed anywhere.
-
-         # Uncomment the next line to specialize this stack for the AWS Account
-         # and Region that are implied by the current CLI configuration.
-
-         #env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION')),
-
-         # Uncomment the next line if you know exactly what Account and Region you
-         # want to deploy the stack to. */
-
-         #env=cdk.Environment(account='123456789012', region='us-east-1'),
-
-         # For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html
-         )
-
+US_WEST_2 = Environment(
+    account='035226225042',
+    region='us-west-2',
+)
+app = App()
+DoiMintingStack(
+    app,
+    'DoiMintingStack',
+    env=US_WEST_2,
+)
 app.synth()
