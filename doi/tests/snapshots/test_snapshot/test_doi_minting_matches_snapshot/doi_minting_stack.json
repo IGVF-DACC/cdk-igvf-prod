@@ -1,0 +1,544 @@
+{
+    "Parameters": {
+        "BootstrapVersion": {
+            "Default": "/cdk-bootstrap/hnb659fds/version",
+            "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+            "Type": "AWS::SSM::Parameter::Value<String>"
+        },
+        "SlackWebhookUrlParameter": {
+            "Default": "SLACK_WEBHOOK_URL_FOR_AWS_IGVF_PROD_CHANNEL",
+            "Type": "AWS::SSM::Parameter::Value<String>"
+        }
+    },
+    "Resources": {
+        "ComputeEnvironmentC570994D": {
+            "Properties": {
+                "ComputeEnvironmentName": "DoiMintingCompute",
+                "ComputeResources": {
+                    "MaxvCpus": 2,
+                    "SecurityGroupIds": [
+                        {
+                            "Fn::GetAtt": [
+                                "ComputeEnvironmentSecurityGroupA8641310",
+                                "GroupId"
+                            ]
+                        }
+                    ],
+                    "Subnets": [
+                        "s-12345",
+                        "s-67890"
+                    ],
+                    "Type": "FARGATE"
+                },
+                "ReplaceComputeEnvironment": false,
+                "State": "ENABLED",
+                "Type": "managed",
+                "UpdatePolicy": {}
+            },
+            "Type": "AWS::Batch::ComputeEnvironment"
+        },
+        "ComputeEnvironmentSecurityGroupA8641310": {
+            "Properties": {
+                "GroupDescription": "DoiMintingStack/ComputeEnvironment/SecurityGroup",
+                "SecurityGroupEgress": [
+                    {
+                        "CidrIp": "0.0.0.0/0",
+                        "Description": "Allow all outbound traffic by default",
+                        "IpProtocol": "-1"
+                    }
+                ],
+                "VpcId": "vpc-12345"
+            },
+            "Type": "AWS::EC2::SecurityGroup"
+        },
+        "DoiMintingContainerExecutionRole89FF8670": {
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "sts:AssumeRole",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "ecs-tasks.amazonaws.com"
+                            }
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                }
+            },
+            "Type": "AWS::IAM::Role"
+        },
+        "DoiMintingContainerExecutionRoleDefaultPolicy49629D0C": {
+            "Properties": {
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": [
+                                "logs:CreateLogStream",
+                                "logs:PutLogEvents"
+                            ],
+                            "Effect": "Allow",
+                            "Resource": {
+                                "Fn::GetAtt": [
+                                    "DoiMintingContainerLogGroupAF766799",
+                                    "Arn"
+                                ]
+                            }
+                        },
+                        {
+                            "Action": [
+                                "ecr:BatchCheckLayerAvailability",
+                                "ecr:GetDownloadUrlForLayer",
+                                "ecr:BatchGetImage"
+                            ],
+                            "Effect": "Allow",
+                            "Resource": {
+                                "Fn::Join": [
+                                    "",
+                                    [
+                                        "arn:",
+                                        {
+                                            "Ref": "AWS::Partition"
+                                        },
+                                        ":ecr:testing:testing:repository/cdk-hnb659fds-container-assets-testing-testing"
+                                    ]
+                                ]
+                            }
+                        },
+                        {
+                            "Action": "ecr:GetAuthorizationToken",
+                            "Effect": "Allow",
+                            "Resource": "*"
+                        },
+                        {
+                            "Action": [
+                                "secretsmanager:GetSecretValue",
+                                "secretsmanager:DescribeSecret"
+                            ],
+                            "Effect": "Allow",
+                            "Resource": "arn:aws:secretsmanager:us-west-2:035226225042:secret:igvf-doi-minting-user-portal-keys-vXwOg4"
+                        },
+                        {
+                            "Action": [
+                                "secretsmanager:GetSecretValue",
+                                "secretsmanager:DescribeSecret"
+                            ],
+                            "Effect": "Allow",
+                            "Resource": "arn:aws:secretsmanager:us-west-2:035226225042:secret:doi-minting-crossref-credentials-r4Yvfx"
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                },
+                "PolicyName": "DoiMintingContainerExecutionRoleDefaultPolicy49629D0C",
+                "Roles": [
+                    {
+                        "Ref": "DoiMintingContainerExecutionRole89FF8670"
+                    }
+                ]
+            },
+            "Type": "AWS::IAM::Policy"
+        },
+        "DoiMintingContainerLogGroupAF766799": {
+            "DeletionPolicy": "Retain",
+            "Properties": {
+                "RetentionInDays": 30
+            },
+            "Type": "AWS::Logs::LogGroup",
+            "UpdateReplacePolicy": "Retain"
+        },
+        "DoiMintingJobDefinitionCE07DF4B": {
+            "Properties": {
+                "ContainerProperties": {
+                    "Environment": [
+                        {
+                            "Name": "CROSSREF_SERVER",
+                            "Value": "https://doi.crossref.org/servlet/deposit"
+                        },
+                        {
+                            "Name": "IGVF_SERVER",
+                            "Value": "https://data.igvf.org"
+                        }
+                    ],
+                    "ExecutionRoleArn": {
+                        "Fn::GetAtt": [
+                            "DoiMintingContainerExecutionRole89FF8670",
+                            "Arn"
+                        ]
+                    },
+                    "FargatePlatformConfiguration": {},
+                    "Image": {
+                        "Fn::Sub": "testing.dkr.ecr.testing.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-testing-testing:978f7bbaada7ba152fb9923203a45a6d07b691794b84a68a4893259c1756994d"
+                    },
+                    "LogConfiguration": {
+                        "LogDriver": "awslogs",
+                        "Options": {
+                            "awslogs-group": {
+                                "Ref": "DoiMintingContainerLogGroupAF766799"
+                            },
+                            "awslogs-region": "testing",
+                            "awslogs-stream-prefix": "doi-minting",
+                            "mode": "non-blocking"
+                        }
+                    },
+                    "NetworkConfiguration": {
+                        "AssignPublicIp": "ENABLED"
+                    },
+                    "ReadonlyRootFilesystem": false,
+                    "ResourceRequirements": [
+                        {
+                            "Type": "MEMORY",
+                            "Value": "1024"
+                        },
+                        {
+                            "Type": "VCPU",
+                            "Value": "1"
+                        }
+                    ],
+                    "RuntimePlatform": {},
+                    "Secrets": [
+                        {
+                            "Name": "PORTAL_KEY",
+                            "ValueFrom": "arn:aws:secretsmanager:us-west-2:035226225042:secret:igvf-doi-minting-user-portal-keys-vXwOg4:portal_key::"
+                        },
+                        {
+                            "Name": "PORTAL_SECRET_KEY",
+                            "ValueFrom": "arn:aws:secretsmanager:us-west-2:035226225042:secret:igvf-doi-minting-user-portal-keys-vXwOg4:portal_secret_key::"
+                        },
+                        {
+                            "Name": "CROSSREF_LOGIN",
+                            "ValueFrom": "arn:aws:secretsmanager:us-west-2:035226225042:secret:doi-minting-crossref-credentials-r4Yvfx:crossref_login::"
+                        },
+                        {
+                            "Name": "CROSSREF_PASSWORD",
+                            "ValueFrom": "arn:aws:secretsmanager:us-west-2:035226225042:secret:doi-minting-crossref-credentials-r4Yvfx:crossref_password::"
+                        }
+                    ]
+                },
+                "PlatformCapabilities": [
+                    "FARGATE"
+                ],
+                "RetryStrategy": {},
+                "Timeout": {
+                    "AttemptDurationSeconds": 14400
+                },
+                "Type": "container"
+            },
+            "Type": "AWS::Batch::JobDefinition"
+        },
+        "DoiMintingJobDefinitionEventsRole75C14674": {
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "sts:AssumeRole",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "events.amazonaws.com"
+                            }
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                }
+            },
+            "Type": "AWS::IAM::Role"
+        },
+        "DoiMintingJobDefinitionEventsRoleDefaultPolicy786B940A": {
+            "Properties": {
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "batch:SubmitJob",
+                            "Effect": "Allow",
+                            "Resource": [
+                                {
+                                    "Ref": "DoiMintingJobDefinitionCE07DF4B"
+                                },
+                                {
+                                    "Fn::GetAtt": [
+                                        "DoiMintingJobQueue79FE7E1D",
+                                        "JobQueueArn"
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                },
+                "PolicyName": "DoiMintingJobDefinitionEventsRoleDefaultPolicy786B940A",
+                "Roles": [
+                    {
+                        "Ref": "DoiMintingJobDefinitionEventsRole75C14674"
+                    }
+                ]
+            },
+            "Type": "AWS::IAM::Policy"
+        },
+        "DoiMintingJobQueue79FE7E1D": {
+            "Properties": {
+                "ComputeEnvironmentOrder": [
+                    {
+                        "ComputeEnvironment": {
+                            "Fn::GetAtt": [
+                                "ComputeEnvironmentC570994D",
+                                "ComputeEnvironmentArn"
+                            ]
+                        },
+                        "Order": 1
+                    }
+                ],
+                "JobQueueName": "DoiMintingJobQueue",
+                "Priority": 1,
+                "State": "ENABLED"
+            },
+            "Type": "AWS::Batch::JobQueue"
+        },
+        "DoiMintingJobRole5A16E80B": {
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "sts:AssumeRole",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "ecs-tasks.amazonaws.com"
+                            }
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                }
+            },
+            "Type": "AWS::IAM::Role"
+        },
+        "DoiMintingSlackNotificationApiDestinationB212917B": {
+            "Properties": {
+                "ConnectionArn": "arn:aws:events:us-west-2:035226225042:connection/AwsIgvfProdSlackWebhookConnectionA3A57238-fgUoGdv828dW/46172d44-83a8-4c1e-9790-15f208e3477b",
+                "HttpMethod": "POST",
+                "InvocationEndpoint": {
+                    "Ref": "SlackWebhookUrlParameter"
+                }
+            },
+            "Type": "AWS::Events::ApiDestination"
+        },
+        "DoiMintingSlackNotificationEventsRoleC7D99250": {
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "sts:AssumeRole",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "events.amazonaws.com"
+                            }
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                }
+            },
+            "Type": "AWS::IAM::Role"
+        },
+        "DoiMintingSlackNotificationEventsRoleDefaultPolicy7773415A": {
+            "Properties": {
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "events:InvokeApiDestination",
+                            "Effect": "Allow",
+                            "Resource": {
+                                "Fn::GetAtt": [
+                                    "DoiMintingSlackNotificationApiDestinationB212917B",
+                                    "Arn"
+                                ]
+                            }
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                },
+                "PolicyName": "DoiMintingSlackNotificationEventsRoleDefaultPolicy7773415A",
+                "Roles": [
+                    {
+                        "Ref": "DoiMintingSlackNotificationEventsRoleC7D99250"
+                    }
+                ]
+            },
+            "Type": "AWS::IAM::Policy"
+        },
+        "NotifySlackDoiMintingFailedA561D684": {
+            "Properties": {
+                "EventPattern": {
+                    "detail": {
+                        "jobQueue": [
+                            {
+                                "Fn::GetAtt": [
+                                    "DoiMintingJobQueue79FE7E1D",
+                                    "JobQueueArn"
+                                ]
+                            }
+                        ],
+                        "status": [
+                            "FAILED"
+                        ]
+                    },
+                    "detail-type": [
+                        "Batch Job State Change"
+                    ],
+                    "source": [
+                        "aws.batch"
+                    ]
+                },
+                "State": "ENABLED",
+                "Targets": [
+                    {
+                        "Arn": {
+                            "Fn::GetAtt": [
+                                "DoiMintingSlackNotificationApiDestinationB212917B",
+                                "Arn"
+                            ]
+                        },
+                        "Id": "Target0",
+                        "Input": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "{\"text\":\":x: *DoiMintingFailed* | ",
+                                    {
+                                        "Fn::GetAtt": [
+                                            "DoiMintingJobQueue79FE7E1D",
+                                            "JobQueueArn"
+                                        ]
+                                    },
+                                    "\"}"
+                                ]
+                            ]
+                        },
+                        "RoleArn": {
+                            "Fn::GetAtt": [
+                                "DoiMintingSlackNotificationEventsRoleC7D99250",
+                                "Arn"
+                            ]
+                        }
+                    }
+                ]
+            },
+            "Type": "AWS::Events::Rule"
+        },
+        "NotifySlackDoiMintingSucceededB04A8F4C": {
+            "Properties": {
+                "EventPattern": {
+                    "detail": {
+                        "jobQueue": [
+                            {
+                                "Fn::GetAtt": [
+                                    "DoiMintingJobQueue79FE7E1D",
+                                    "JobQueueArn"
+                                ]
+                            }
+                        ],
+                        "status": [
+                            "SUCCEEDED"
+                        ]
+                    },
+                    "detail-type": [
+                        "Batch Job State Change"
+                    ],
+                    "source": [
+                        "aws.batch"
+                    ]
+                },
+                "State": "ENABLED",
+                "Targets": [
+                    {
+                        "Arn": {
+                            "Fn::GetAtt": [
+                                "DoiMintingSlackNotificationApiDestinationB212917B",
+                                "Arn"
+                            ]
+                        },
+                        "Id": "Target0",
+                        "Input": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "{\"text\":\":white_check_mark: *DoiMintingSucceeded* | ",
+                                    {
+                                        "Fn::GetAtt": [
+                                            "DoiMintingJobQueue79FE7E1D",
+                                            "JobQueueArn"
+                                        ]
+                                    },
+                                    "\"}"
+                                ]
+                            ]
+                        },
+                        "RoleArn": {
+                            "Fn::GetAtt": [
+                                "DoiMintingSlackNotificationEventsRoleC7D99250",
+                                "Arn"
+                            ]
+                        }
+                    }
+                ]
+            },
+            "Type": "AWS::Events::Rule"
+        },
+        "StartDoiMintingRuleFE255A4F": {
+            "Properties": {
+                "ScheduleExpression": "cron(55 5 * * ? *)",
+                "State": "ENABLED",
+                "Targets": [
+                    {
+                        "Arn": {
+                            "Fn::GetAtt": [
+                                "DoiMintingJobQueue79FE7E1D",
+                                "JobQueueArn"
+                            ]
+                        },
+                        "BatchParameters": {
+                            "JobDefinition": {
+                                "Ref": "DoiMintingJobDefinitionCE07DF4B"
+                            },
+                            "JobName": "DoiMintingBatchJob"
+                        },
+                        "Id": "Target0",
+                        "RetryPolicy": {
+                            "MaximumRetryAttempts": 0
+                        },
+                        "RoleArn": {
+                            "Fn::GetAtt": [
+                                "DoiMintingJobDefinitionEventsRole75C14674",
+                                "Arn"
+                            ]
+                        }
+                    }
+                ]
+            },
+            "Type": "AWS::Events::Rule"
+        }
+    },
+    "Rules": {
+        "CheckBootstrapVersion": {
+            "Assertions": [
+                {
+                    "Assert": {
+                        "Fn::Not": [
+                            {
+                                "Fn::Contains": [
+                                    [
+                                        "1",
+                                        "2",
+                                        "3",
+                                        "4",
+                                        "5"
+                                    ],
+                                    {
+                                        "Ref": "BootstrapVersion"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+                }
+            ]
+        }
+    }
+}
