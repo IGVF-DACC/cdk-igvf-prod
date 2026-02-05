@@ -122,7 +122,25 @@ jobs:
     - name: Run snapshot test
       run: pytest
       working-directory: ./transfer
-
+  test-doi:
+    needs: lint
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.11
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements.txt -r requirements-dev.txt
+      working-directory: ./doi
+    - name: Run snapshot test
+      run: pytest
+      working-directory: ./doi
   test-restricted-bucket:
     needs: lint
     runs-on: ubuntu-latest
