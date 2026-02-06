@@ -106,7 +106,7 @@ class DoiMintingStack(Stack):
             memory=Size.mebibytes(2048),
             cpu=1,
             environment={'CROSSREF_SERVER': 'https://doi.crossref.org/servlet/deposit',
-                         'IGVF_SERVER': 'https://data.igvf.org'},
+                         'IGVF_SERVER': 'https://api.data.igvf.org'},
             secrets={
                 'PORTAL_KEY': Secret.from_secrets_manager(
                     secret=igvf_doi_minting_user_portal_keys,
