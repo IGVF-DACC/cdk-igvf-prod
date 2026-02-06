@@ -187,7 +187,7 @@
                     "ResourceRequirements": [
                         {
                             "Type": "MEMORY",
-                            "Value": "1024"
+                            "Value": "2048"
                         },
                         {
                             "Type": "VCPU",
@@ -219,7 +219,7 @@
                 ],
                 "RetryStrategy": {},
                 "Timeout": {
-                    "AttemptDurationSeconds": 14400
+                    "AttemptDurationSeconds": 28800
                 },
                 "Type": "container"
             },
