@@ -156,7 +156,7 @@
                         },
                         {
                             "Name": "IGVF_SERVER",
-                            "Value": "https://data.igvf.org"
+                            "Value": "https://api.data.igvf.org"
                         }
                     ],
                     "ExecutionRoleArn": {
@@ -167,7 +167,7 @@
                     },
                     "FargatePlatformConfiguration": {},
                     "Image": {
-                        "Fn::Sub": "testing.dkr.ecr.testing.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-testing-testing:978f7bbaada7ba152fb9923203a45a6d07b691794b84a68a4893259c1756994d"
+                        "Fn::Sub": "testing.dkr.ecr.testing.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-testing-testing:ff82e924aa95789c685caa244da34a07725dadba9d0df77a57e7856e13b0c226"
                     },
                     "LogConfiguration": {
                         "LogDriver": "awslogs",
@@ -187,7 +187,7 @@
                     "ResourceRequirements": [
                         {
                             "Type": "MEMORY",
-                            "Value": "1024"
+                            "Value": "2048"
                         },
                         {
                             "Type": "VCPU",
@@ -219,7 +219,7 @@
                 ],
                 "RetryStrategy": {},
                 "Timeout": {
-                    "AttemptDurationSeconds": 14400
+                    "AttemptDurationSeconds": 28800
                 },
                 "Type": "container"
             },

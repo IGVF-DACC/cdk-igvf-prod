@@ -103,10 +103,10 @@ class DoiMintingStack(Stack):
                 './docker',
                 platform=Platform.LINUX_AMD64,
             ),
-            memory=Size.mebibytes(1024),
+            memory=Size.mebibytes(2048),
             cpu=1,
             environment={'CROSSREF_SERVER': 'https://doi.crossref.org/servlet/deposit',
-                         'IGVF_SERVER': 'https://data.igvf.org'},
+                         'IGVF_SERVER': 'https://api.data.igvf.org'},
             secrets={
                 'PORTAL_KEY': Secret.from_secrets_manager(
                     secret=igvf_doi_minting_user_portal_keys,
@@ -136,7 +136,7 @@ class DoiMintingStack(Stack):
             self,
             'DoiMintingJobDefinition',
             container=doi_minting_container,
-            timeout=Duration.hours(4),
+            timeout=Duration.hours(8),
         )
 
         start_doi_minting_rule = Rule(
