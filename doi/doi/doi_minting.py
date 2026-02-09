@@ -42,6 +42,9 @@ from aws_cdk.aws_ec2 import Vpc
 from constructs import Construct
 
 
+NUMBER_OF_DOIS_TO_MINT_PER_RUN = '3000'
+
+
 class DoiMintingStack(Stack):
 
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
@@ -105,8 +108,11 @@ class DoiMintingStack(Stack):
             ),
             memory=Size.mebibytes(2048),
             cpu=1,
-            environment={'CROSSREF_SERVER': 'https://doi.crossref.org/servlet/deposit',
-                         'IGVF_SERVER': 'https://api.data.igvf.org'},
+            environment={
+                'CROSSREF_SERVER': 'https://doi.crossref.org/servlet/deposit',
+                'IGVF_SERVER': 'https://api.data.igvf.org',
+                'LIMIT': NUMBER_OF_DOIS_TO_MINT_PER_RUN,
+            },
             secrets={
                 'PORTAL_KEY': Secret.from_secrets_manager(
                     secret=igvf_doi_minting_user_portal_keys,
