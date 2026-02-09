@@ -157,6 +157,10 @@
                         {
                             "Name": "IGVF_SERVER",
                             "Value": "https://api.data.igvf.org"
+                        },
+                        {
+                            "Name": "LIMIT",
+                            "Value": "3000"
                         }
                     ],
                     "ExecutionRoleArn": {
@@ -167,7 +171,7 @@
                     },
                     "FargatePlatformConfiguration": {},
                     "Image": {
-                        "Fn::Sub": "testing.dkr.ecr.testing.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-testing-testing:ff82e924aa95789c685caa244da34a07725dadba9d0df77a57e7856e13b0c226"
+                        "Fn::Sub": "testing.dkr.ecr.testing.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-testing-testing:7558f564cffbf5523d99a2ed846e2b7d0ba410bb0280bd35d19fe68008a0203c"
                     },
                     "LogConfiguration": {
                         "LogDriver": "awslogs",
