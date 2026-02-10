@@ -171,7 +171,7 @@
                     },
                     "FargatePlatformConfiguration": {},
                     "Image": {
-                        "Fn::Sub": "testing.dkr.ecr.testing.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-testing-testing:7558f564cffbf5523d99a2ed846e2b7d0ba410bb0280bd35d19fe68008a0203c"
+                        "Fn::Sub": "testing.dkr.ecr.testing.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-testing-testing:98d84dbfe93c878ae0930b6c4c7d569a58514082fd0244f00e46cfafcd1d1291"
                     },
                     "LogConfiguration": {
                         "LogDriver": "awslogs",
