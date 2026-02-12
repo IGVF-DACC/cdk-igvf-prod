@@ -6,7 +6,7 @@ ENV PYTHONUNBUFFERED=1
 
 ENV VIRTUAL_ENV=/opt/venv
 
-ARG VERSION=v1.0.0
+ARG VERSION=v1.0.1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
