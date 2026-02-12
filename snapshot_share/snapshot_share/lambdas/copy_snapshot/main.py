@@ -43,7 +43,7 @@ def sort_results_by_create_time(results):
 
 def make_target_snapshot_id(source_snapshot_id):
     # for manual snapshots the rds: prefix is not allowed
-    target_snapshot_id = re.sub('^rds\:', '', source_snapshot_id)
+    target_snapshot_id = re.sub(r'^rds:', '', source_snapshot_id)
     return target_snapshot_id
 
 
