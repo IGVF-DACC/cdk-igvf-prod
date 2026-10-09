@@ -72,6 +72,23 @@ class BucketAccessPolicies(Stack):
             ]
         )
 
+        self.read_from_any_external_bucket_policy_statement = PolicyStatement(
+            sid='AllowReadFromAnyExternalBucket',
+            resources=[
+                # Still requires corresponding policy on external bucket for this to matter.
+                'arn:aws:s3:::*/*',
+            ],
+            actions=[
+                's3:GetObject',
+            ],
+            conditions={
+                'StringNotEquals': {
+                    # Avoid granting read to buckets in same account.
+                    'aws:ResourceAccount': self.account,
+                }
+            }
+        )
+
         self.federated_token_policy_statement = PolicyStatement(
             sid='AllowGenerateFederatedToken',
             resources=[
@@ -99,6 +116,7 @@ class BucketAccessPolicies(Stack):
             statements=[
                 self.upload_igvf_files_policy_statement,
                 self.federated_token_policy_statement,
+                self.read_from_any_external_bucket_policy_statement,
             ],
         )
 
